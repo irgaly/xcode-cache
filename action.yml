@@ -1,0 +1,49 @@
+name: 'Xcode Cache'
+description: 'Cache Xcode''s DerivedData for incremental build.'
+author: 'irgaly'
+branding:
+  icon: 'zap'
+  color: 'blue'
+inputs:
+  key:
+    description: 'cache key for DerivedData'
+    required: true
+  restore-keys:
+    description: 'cache restore keys for DerivedData'
+    required: false
+    default: ''
+  deriveddata-directory:
+    description: 'a directory of project''s DerivedData. default: ~/Library/Developer/Xcode/DerivedData'
+    required: false
+    default: ''
+  sourcepackages-directory:
+    description: 'a directory of SourcePackages. default: ${deriveddata-directory}/SourcePackages'
+    required: false
+    default: ''
+  restore-mtime-targets:
+    description: 'the targets of restoring mtime.'
+    required: false
+    default: ''
+  ignore-mtime-targets:
+    description: 'the ignoring targets of restoring mtime.'
+    required: false
+    default: ''
+  swiftpm-package-resolved-file:
+    description: 'Xcode''s Package.resolved file path glob pattern. default: **/*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved , **/*.xcworkspace/xcshareddata/swiftpm/Package.resolved'
+    required: false
+    default: ''
+  swiftpm-cache-key:
+    description: 'cache key for SourcePackages. default: irgaly/xcode-cache-sourcepackages-${{ hashFiles({resolvedFiles}) }}'
+    required: false
+    default: ''
+  swiftpm-cache-restore-keys:
+    description: 'cache restore keys for SourcePackages'
+    required: false
+    default: ''
+  verbose:
+    description: 'enable verbose logging'
+    required: false
+    default: 'false'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
