@@ -1,0 +1,24 @@
+{
+  "name": "xcode-cache",
+  "version": "0.9.0",
+  "main": "dist/index.js",
+  "private": true,
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "ncc build src/main.ts --source-map --license licenses.txt",
+    "main": "ts-node src/main.ts"
+  },
+  "dependencies": {
+    "@actions/cache": "^1.0.9",
+    "@actions/core": "^1.6.0",
+    "@actions/exec": "^1.0.4",
+    "@actions/glob": "^0.2.0",
+    "@actions/tool-cache": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.0",
+    "@vercel/ncc": "^0.34.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
