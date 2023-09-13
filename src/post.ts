@@ -29,10 +29,12 @@ async function post() {
     core.info('')
     const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
+    const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
     try {
       await fs.access(derivedDataDirectory)
       await storeMtime(
         derivedDataDirectory,
+        sourcePackagesDirectory,
         input.restoreMtimeTargets,
         input.useDefaultMtimeTargets,
         input.verbose
@@ -41,7 +43,6 @@ async function post() {
       core.warning(`DerivedData directory not found: ${derivedDataDirectory}`)
       core.warning('skipped to storing mtime')
     }
-    const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
     if (sourcePackagesDirectory == null) {
       core.info(`SourcePackages directory not found, skip storing SourcePackages`)
     } else {
@@ -54,8 +55,8 @@ async function post() {
           input.verbose
         )
       } catch (error) {
-          core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
-          core.warning('skipped to storing SourcePackages')
+        core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
+        core.warning('skipped to storing SourcePackages')
       }
     }
     await storeDerivedData(
@@ -109,9 +110,9 @@ async function storeSourcePackages(
 ) {
   const tar = path.join(tempDirectory, 'SourcePackages.tar')
   await fs.mkdir(tempDirectory, { recursive: true })
-  const args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
+  let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
   if (verbose) {
-    args.push('-v')
+    args = ['-v', ...args]
     await exec.exec('tar', ['--version'])
   }
   await exec.exec('tar', args)
@@ -120,6 +121,7 @@ async function storeSourcePackages(
 
 async function storeMtime(
   derivedDataDirectory: string,
+  sourcePackagesDirectory: string | null,
   restoreMtimeTargets: string[],
   useDefaultMtimeTarget: boolean,
   verbose: boolean
@@ -145,9 +147,30 @@ async function storeMtime(
     "**/*.hpp",
     "**/*.hxx"
   ]
-  const patterns = restoreMtimeTargets
+  let patterns: string[] = []
   if (useDefaultMtimeTarget) {
-    patterns.push(...defaultMtimeTargets)
+    patterns = [...patterns, ...defaultMtimeTargets]
+  }
+  const targets = restoreMtimeTargets.sort((l, r) => {
+    let order = 0
+    const excludeL = l.startsWith('!')
+    const excludeR = r.startsWith('!')
+    if (excludeL != excludeR) {
+      if (excludeL) {
+        order = 1
+      } else {
+        order = -1
+      }
+    }
+    return order
+  })
+  patterns = [...patterns, ...targets]
+  patterns = [...patterns, `!${derivedDataDirectory}`]
+  if (sourcePackagesDirectory != null) {
+    patterns = [...patterns, `!${sourcePackagesDirectory}`]
+  }
+  if (verbose) {
+    core.info(`hash file's glob pattern:\n${patterns.join('\n')}\n`)
   }
   const cwd = process.cwd()
   const globber = await glob.create(patterns.join('\n'))
