@@ -1,0 +1,21 @@
+name: Build nanoutimes node binding
+
+on: push
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: josepharhar/nanoutimes
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.6.1
+      - run: |
+          npm install -g node-gyp
+          node-gyp configure && node-gyp build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: nanoutimes.node
+          path: build/Release/nanoutimes.node
