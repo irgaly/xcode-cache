@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as cache from '@actions/cache'
+import * as exec from '@actions/exec'
 import * as fs from 'fs/promises'
 import * as os from 'os'
 import * as path from 'path'
@@ -83,10 +84,9 @@ async function restoreDerivedData(
     let args = ['-xf', tar, '-C', path.dirname(derivedDataDirectory)]
     if (verbose) {
       args = ['-v', ...args]
+      await exec.exec('tar', ['--version'])
     }
-    core.info(['tar', ...args].join(' '))
-    const output = await util.execute('tar', args)
-    core.info(output)
+    await exec.exec('tar', args)
     core.info(`DerivedData has restored from cache: ${derivedDataDirectory}`)
   }
   return restored
@@ -109,10 +109,9 @@ async function restoreSourcePackages(
     let args = ['-xf', tar, '-C', path.dirname(sourcePackagesDirectory)]
     if (verbose) {
       args = ['-v', ...args]
+      await exec.exec('tar', ['--version'])
     }
-    core.info(['tar', ...args].join(' '))
-    const output = await util.execute('tar', args)
-    core.info(output)
+    await exec.exec('tar', args)
     core.info(`SourcePackages has restored from cache: ${sourcePackagesDirectory}`)
   }
   return restored

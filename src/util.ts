@@ -1,4 +1,5 @@
 import * as fs from 'fs/promises'
+import { existsSync } from 'fs'
 import * as path from 'path'
 import { createReadStream } from 'fs'
 import * as exec from '@actions/exec'
@@ -78,8 +79,12 @@ export async function fakeCache(
   cache: any
 ) {
   Object.assign(cache, {
-    restoreCache: async (path: string[], primaryKey: string, restoreKeys?: string[]): Promise<string | undefined> => {
-      return undefined
+    restoreCache: async (paths: string[], primaryKey: string, restoreKeys?: string[]): Promise<string | undefined> => {
+      if (existsSync(paths[0])) {
+        return "restore-key"
+      } else {
+        return undefined
+      }
     }
   })
 }

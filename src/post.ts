@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as cache from '@actions/cache'
 import * as glob from '@actions/glob'
+import * as exec from '@actions/exec'
 import * as fs from 'fs/promises'
 import * as os from 'os'
 import * as path from 'path'
@@ -93,10 +94,9 @@ async function storeDerivedData(
   const args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
   if (verbose) {
     args = ['-v', ...args]
+    await exec.exec('tar', ['--version'])
   }
-  core.info(['tar', ...args].join(' '))
-  const output = await util.execute('tar', args)
-  core.info(output)
+  await exec.exec('tar', args)
   await saveCache(tar, key)
 }
 
@@ -111,10 +111,9 @@ async function storeSourcePackages(
   const args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
   if (verbose) {
     args.push('-v')
+    await exec.exec('tar', ['--version'])
   }
-  core.info(['tar', ...args].join(' '))
-  const output = await util.execute('tar', args)
-  core.info(output)
+  await exec.exec('tar', args)
   await saveCache(tar, key)
 }
 
@@ -175,22 +174,4 @@ async function storeMtime(
   })
   await fs.writeFile(jsonFile, JSON.stringify(json))
   core.info(`Stored ${stored} files : ${jsonFile}`)
-}
-
-async function execute(command: string, args: string[] = [], cwd?: string): Promise<string> {
-  let output = ''
-  const options: ExecOptions = {}
-  options.listeners = {
-    stdout: (data: Buffer) => {
-      output += data.toString()
-    },
-    stderr: (data: Buffer) => {
-      console.error(data)
-    }
-  }
-  if (cwd) {
-    options.cwd = cwd
-  }
-  await exec.exec(command, args, options)
-  return output
 }
