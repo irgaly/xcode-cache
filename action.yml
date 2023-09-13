@@ -9,7 +9,7 @@ inputs:
     description: 'cache key for DerivedData'
     required: true
   restore-keys:
-    description: 'cache restore keys for DerivedData'
+    description: 'cache restore keys for DerivedData. example: '
     required: false
     default: ''
   deriveddata-directory:
@@ -21,11 +21,7 @@ inputs:
     required: false
     default: ''
   restore-mtime-targets:
-    description: 'the targets of restoring mtime.'
-    required: false
-    default: ''
-  ignore-mtime-targets:
-    description: 'the ignoring targets of restoring mtime.'
+    description: 'the targets glob pattern of restoring mtime. exclude pattern ''!{pattern}'' can be used.'
     required: false
     default: ''
   swiftpm-package-resolved-file:
@@ -40,6 +36,10 @@ inputs:
     description: 'cache restore keys for SourcePackages'
     required: false
     default: ''
+  use-default-mtime-targets:
+    description: 'process default mtime targets: **/*.swift , **/*.xib , **/*.storyboard , **/*.strings , **/*.plist , **/*.bundle , **/*.bundle/**/* , **/*.m , **/*.mm , **/*.h , **/*.c , **/*.cc , **/*.cpp , **/*.hpp , **/*.hxx'
+    required: false
+    default: 'true'
   verbose:
     description: 'enable verbose logging'
     required: false
@@ -47,3 +47,4 @@ inputs:
 runs:
   using: 'node20'
   main: 'dist/index.js'
+  post: 'dist/post.js'
