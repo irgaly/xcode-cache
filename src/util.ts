@@ -1,3 +1,4 @@
+import * as core from '@actions/core'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 import * as path from 'path'
@@ -84,6 +85,15 @@ export async function fakeCache(
         return "restore-key"
       } else {
         return undefined
+      }
+    },
+    saveCache: async (paths: string[], key: string): Promise<number> => {
+      if (existsSync(paths[0])) {
+        core.info(`Debug: saveCache success: ${paths[0]}`)
+        return 0
+      } else {
+        core.error(`Debug: saveCache failure: ${paths[0]}`)
+        throw new Error(`file not exist: ${paths[0]}`)
       }
     }
   })

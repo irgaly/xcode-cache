@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as cache from '@actions/cache'
 import * as exec from '@actions/exec'
 import * as fs from 'fs/promises'
+import { BigIntStats } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { getInput, debugLocalInput } from './input'
@@ -9,7 +10,6 @@ import * as util from './util'
 import { MtimeJson } from './json'
 import { promisify } from 'util'
 const nanoutimes = require(`../lib/node-v${process.versions.modules}-darwin-${os.arch()}/nanoutimes.node`)
-const utimes = promisify(nanoutimes.utimesSync)
 
 main()
 
@@ -138,8 +138,14 @@ async function restoreMtime(
       core.startGroup('Restored files')
     }
     for (const item of files) {
+      let stat: BigIntStats | null = null
       try {
-        const stat = await fs.stat(item.path, {bigint: true})
+        stat = await fs.stat(item.path, {bigint: true})
+      } catch (error) {
+        // file not exist
+        // do nothing
+      }
+      if (stat != null) {
         const fileMtime = stat.mtimeNs.toString()
         const cacheMtime = item.time.replace(',', '')
         if (fileMtime == cacheMtime) {
@@ -162,13 +168,10 @@ async function restoreMtime(
               core.info(`=> ${item.time} : ${item.path}`)
             }
             const [second, nano] = item.time.split(',').map(v => { Number(v) })
-            await utimes(item.path, second, nano, second, nano)
+            nanoutimes.utimesSync(item.path, second, nano, second, nano)
             changed++
           }
         }
-      } catch (error) {
-        // file not exist
-        // do nothing
       }
     }
     if (verbose) {
