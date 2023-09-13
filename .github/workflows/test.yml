@@ -1,0 +1,12 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - shell: bash -xeu {0}
+        run: npm run build
