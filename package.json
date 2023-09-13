@@ -6,7 +6,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "ncc build src/main.ts --source-map --license licenses.txt && ncc build src/post.ts --source-map",
-    "main": "ts-node src/main.ts"
+    "main": "ts-node src/main.ts",
+    "post": "ts-node src/post.ts"
   },
   "dependencies": {
     "@actions/cache": "^1.0.9",

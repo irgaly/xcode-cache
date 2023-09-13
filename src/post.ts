@@ -31,13 +31,13 @@ async function post() {
     const derivedDataDirectory = await input.getDerivedDataDirectory()
     const derivedDataDirectoryStat = await fs.stat(derivedDataDirectory)
     if (!derivedDataDirectoryStat) {
-      core.warn(`DerivedData directory not found: ${derivedDataDirectory}`)
-      core.warn('skipped to storing mtime')
+      core.warning(`DerivedData directory not found: ${derivedDataDirectory}`)
+      core.warning('skipped to storing mtime')
     } else {
       await storeMtime(
         derivedDataDirectory,
         input.restoreMtimeTargets,
-        input.useDefaultMtimeTarget,
+        input.useDefaultMtimeTargets,
         input.verbose
       )
     }
@@ -47,8 +47,8 @@ async function post() {
     } else {
       const sourcePackagesDirectoryStat = await fs.stat(sourcePackagesDirectory)
       if (!sourcePackagesDirectoryStat) {
-        core.warn(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
-        core.warn('skipped to storing SourcePackages')
+        core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
+        core.warning('skipped to storing SourcePackages')
       } else {
         await storeSourcePackages(
           sourcePackagesDirectory,
@@ -60,6 +60,7 @@ async function post() {
     }
     await storeDerivedData(
       await input.getDerivedDataDirectory(),
+      sourcePackagesDirectory,
       tempDirectory,
       input.key,
       input.verbose
@@ -76,7 +77,7 @@ async function storeDerivedData(
   sourcePackagesDirectory: string | null,
   tempDirectory: string,
   key: string,
-  restoreKeys: string[]
+  verbose: boolean
 ) {
   const tar = path.join(tempDirectory, 'DerivedData.tar')
   await fs.mkdir(tempDirectory, { recursive: true })
@@ -84,20 +85,20 @@ async function storeDerivedData(
   let excludes: string[] = []
   let constainsSourcePackages = false
   if (sourcePackagesDirectory != null) {
-    if (pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
+    if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
       const relativePath = path.relative(parent, sourcePackagesDirectory)
       excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap (fileName =>
         ['--exclude', `./${path.join(relativePath, fileName)}`]
       )
     }
   }
-  const args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
+  let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
   if (verbose) {
     args = ['-v', ...args]
     await exec.exec('tar', ['--version'])
   }
   await exec.exec('tar', args)
-  await saveCache(tar, key)
+  await cache.saveCache([tar], key)
 }
 
 async function storeSourcePackages(
@@ -114,7 +115,7 @@ async function storeSourcePackages(
     await exec.exec('tar', ['--version'])
   }
   await exec.exec('tar', args)
-  await saveCache(tar, key)
+  await cache.saveCache([tar], key)
 }
 
 async function storeMtime(
@@ -138,11 +139,11 @@ async function storeMtime(
     "**/*.m",
     "**/*.mm",
     "**/*.h",
-    "**/*.c,
-    "**/*.cc,
-    "**/*.cpp,
-    "**/*.hpp,
-    "**/*.hxx
+    "**/*.c",
+    "**/*.cc",
+    "**/*.cpp",
+    "**/*.hpp",
+    "**/*.hxx"
   ]
   const patterns = restoreMtimeTargets
   if (useDefaultMtimeTarget) {
@@ -158,7 +159,7 @@ async function storeMtime(
     if (!stat) {
       core.warning(`cannot read file stat: ${path}`)
     } else {
-      const mtime = getTimeString(stat.mtimeNs).
+      const mtime = util.getTimeString(stat.mtimeNs)
       let sha256 = ''
       if (stat.isDirectory()) {
         sha256 = await util.calculateDirectoryHash(path)
@@ -168,7 +169,7 @@ async function storeMtime(
       if (verbose) {
         core.info(`=> ${mtime} : ${path}`)
       }
-      json.push(MtimeJson(path, mtime, sha256))
+      json.push({ path: path, time: mtime, sha256: sha256 })
       stored++
     }
   })
