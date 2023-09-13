@@ -29,7 +29,7 @@ async function main() {
     })
     const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
-    await restoreDerivedData(
+    const derivedDataRestored = await restoreDerivedData(
       derivedDataDirectory,
       tempDirectory,
       input.key,
@@ -48,12 +48,14 @@ async function main() {
         input.verbose
       )
     }
-    await restoreMtime(
-      derivedDataDirectory,
-      input.restoreMtimeTargets,
-      input.verbose
-    )
-    await fs.rm(tempDirectory, { recursive: true })
+    if (derivedDataRestored) {
+      await restoreMtime(
+        derivedDataDirectory,
+        input.restoreMtimeTargets,
+        input.verbose
+      )
+    }
+    await fs.rm(tempDirectory, { recursive: true, force: true })
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
@@ -67,7 +69,7 @@ async function restoreDerivedData(
   key: string,
   restoreKeys: string[],
   verbose: boolean
-) {
+): Promise<boolean> {
   const tar = path.join(tempDirectory, 'DerivedData.tar')
   const restored = (await cache.restoreCache([tar], key, restoreKeys) != undefined)
   if (!restored) {
@@ -84,6 +86,7 @@ async function restoreDerivedData(
     core.info(output)
     core.info(`DerivedData has restored from cache: ${derivedDataDirectory}`)
   }
+  return restored
 }
 
 async function restoreSourcePackages(
@@ -92,7 +95,7 @@ async function restoreSourcePackages(
   key: string,
   restoreKeys: string[],
   verbose: boolean
-) {
+): Promise<boolean> {
   const tar = path.join(tempDirectory, 'SourcePackages.tar')
   const restored = (await cache.restoreCache([tar], key, restoreKeys) != undefined)
   if (!restored) {
@@ -109,6 +112,7 @@ async function restoreSourcePackages(
     core.info(output)
     core.info(`SourcePackages has restored from cache: ${sourcePackagesDirectory}`)
   }
+  return restored
 }
 
 async function restoreMtime(
@@ -116,11 +120,17 @@ async function restoreMtime(
   restoreMtimeTargets: string[],
   verbose: boolean
 ) {
+  let changed = 0
+  let skipped: string[] = []
+  const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json')
+  let json = null
   try {
-    let changed = 0
-    let skipped: string[] = []
-    const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json')
-    const files = JSON.parse(await fs.readFile(jsonFile, 'utf8')) as MtimeJson[]
+    json = await fs.readFile(jsonFile, 'utf8')
+  } catch (error) {
+    core.info(`xcode-cache-mtime.json not found: ${jsonFile}`)
+  }
+  if (json != null) {
+    const files = JSON.parse(json) as MtimeJson[]
     core.info(`restore mtime from ${jsonFile}`)
     if (verbose) {
       core.startGroup('Restored files')
@@ -167,10 +177,5 @@ async function restoreMtime(
       core.endGroup()
     }
     core.info(`Restored ${changed} files.`)
-  } catch (error) {
-    if (error instanceof Error) {
-      // in case fs.ReadFile(): jsonFile not found.
-      core.error(error)
-    }
   }
 }
