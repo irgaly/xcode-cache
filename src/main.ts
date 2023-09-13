@@ -56,7 +56,9 @@ async function main() {
         input.verbose
       )
     }
-    await fs.rm(tempDirectory, { recursive: true, force: true })
+    if (!debugLocal) {
+      await fs.rm(tempDirectory, { recursive: true, force: true })
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
