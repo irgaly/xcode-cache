@@ -29,33 +29,33 @@ async function post() {
     core.info('')
     const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
-    const derivedDataDirectoryStat = await fs.stat(derivedDataDirectory)
-    if (!derivedDataDirectoryStat) {
-      core.warning(`DerivedData directory not found: ${derivedDataDirectory}`)
-      core.warning('skipped to storing mtime')
-    } else {
+    try {
+      await fs.access(derivedDataDirectory)
       await storeMtime(
         derivedDataDirectory,
         input.restoreMtimeTargets,
         input.useDefaultMtimeTargets,
         input.verbose
       )
+    } catch (error) {
+      core.warning(`DerivedData directory not found: ${derivedDataDirectory}`)
+      core.warning('skipped to storing mtime')
     }
     const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
     if (sourcePackagesDirectory == null) {
       core.info(`SourcePackages directory not found, skip storing SourcePackages`)
     } else {
-      const sourcePackagesDirectoryStat = await fs.stat(sourcePackagesDirectory)
-      if (!sourcePackagesDirectoryStat) {
-        core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
-        core.warning('skipped to storing SourcePackages')
-      } else {
+      try {
+        await fs.access(sourcePackagesDirectory)
         await storeSourcePackages(
           sourcePackagesDirectory,
           tempDirectory,
           await input.getSwiftpmCacheKey(),
           input.verbose
         )
+      } catch (error) {
+          core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
+          core.warning('skipped to storing SourcePackages')
       }
     }
     await storeDerivedData(
@@ -155,10 +155,8 @@ async function storeMtime(
     core.startGroup('Stored files')
   }
   files.forEach(async path => {
-    const stat = await fs.stat(path, {bigint: true})
-    if (!stat) {
-      core.warning(`cannot read file stat: ${path}`)
-    } else {
+    try {
+      const stat = await fs.stat(path, {bigint: true})
       const mtime = util.getTimeString(stat.mtimeNs)
       let sha256 = ''
       if (stat.isDirectory()) {
@@ -171,6 +169,8 @@ async function storeMtime(
       }
       json.push({ path: path, time: mtime, sha256: sha256 })
       stored++
+    } catch (error) {
+      core.warning(`cannot read file stat: ${path}`)
     }
   })
   await fs.writeFile(jsonFile, JSON.stringify(json))
