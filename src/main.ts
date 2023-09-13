@@ -155,7 +155,7 @@ async function restoreMtime(
       }
       if (stat != null) {
         const fileMtime = stat.mtimeNs.toString()
-        const cacheMtime = item.time.replace(',', '')
+        const cacheMtime = item.time.replace('.', '')
         if (fileMtime == cacheMtime) {
           if (verbose) {
             skipped.push(`mtime not changed : ${item.path}`)
@@ -175,7 +175,7 @@ async function restoreMtime(
             if (verbose) {
               core.info(`=> ${item.time} : ${item.path}`)
             }
-            const [second, nano] = item.time.split(',').map(v => { Number(v) })
+            const [second, nano] = item.time.split('.').map(v => Number(v))
             nanoutimes.utimesSync(item.path, second, nano, second, nano)
             changed++
           }
