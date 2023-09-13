@@ -25,6 +25,7 @@ async function post() {
     Object.entries(input).forEach(([key, value]) => {
       core.info(`${key}: ${value}`)
     })
+    core.info('')
     const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
     const derivedDataDirectoryStat = await fs.stat(derivedDataDirectory)
