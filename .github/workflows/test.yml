@@ -1,0 +1,16 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+      - run: npm install
+      - shell: bash -xeu {0}
+        run: npm run build

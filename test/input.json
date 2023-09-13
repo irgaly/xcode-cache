@@ -1,0 +1,9 @@
+{
+  "RUNNER_OS": "macOS",
+  "RUNNER_TEMP": "./tmp",
+  "INPUT_KEY": "xcode-deriveddata-{workflow}-{sha}",
+  "INPUT_DERIVEDDATA-DIRECTORY": "./sample/MyApp/DerivedData",
+  "INPUT_SOURCEPACKAGES-DIRECTORY": "./sample/MyApp/SourcePackages",
+  "INPUT_USE-DEFAULT-MTIME-TARGETS": "true",
+  "INPUT_VERBOSE": "true"
+}
