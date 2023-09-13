@@ -59,6 +59,21 @@ class Input {
   }
 }
 
+export async function debugLocalInput(): Promise<boolean> {
+  let result = false
+  const inputFile = process.env['INPUT']
+  if (inputFile) {
+    // setup environment from file for debug
+    const json = JSON.parse(await fs.readFile(inputFile, 'utf8'))
+    Object.entries(json).forEach(([key, value]) => {
+      core.info(`set debug env: ${key} => ${value}`)
+      process.env[key] = value as string
+    })
+    result = true
+  }
+  return result
+}
+
 export function getInput(): Input {
   return new Input(
     core.getInput('key'),

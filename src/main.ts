@@ -3,7 +3,7 @@ import * as cache from '@actions/cache'
 import * as fs from 'fs/promises'
 import * as os from 'os'
 import * as path from 'path'
-import { getInput } from './input'
+import { getInput, debugLocalInput } from './input'
 import * as util from './util'
 import { MtimeJson } from './json'
 import { promisify } from 'util'
@@ -14,6 +14,10 @@ main()
 
 async function main() {
   try {
+    const debugLocal = await debugLocalInput()
+    if (debugLocal) {
+      util.fakeCache(cache)
+    }
     const runnerOs = process.env['RUNNER_OS']
     if (runnerOs != 'macOS') {
       throw new Error(`host is not macOS: ${runnerOs}`)

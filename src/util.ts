@@ -73,3 +73,13 @@ export async function execute(
   await exec.exec(command, args, options)
   return output
 }
+
+export async function fakeCache(
+  cache: any
+) {
+  Object.assign(cache, {
+    restoreCache: async (path: string[], primaryKey: string, restoreKeys?: string[]): Promise<string | undefined> => {
+      return undefined
+    }
+  })
+}
