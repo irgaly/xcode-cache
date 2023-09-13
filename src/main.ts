@@ -84,9 +84,13 @@ async function restoreDerivedData(
     let args = ['-xf', tar, '-C', path.dirname(derivedDataDirectory)]
     if (verbose) {
       args = ['-v', ...args]
+      core.startGroup('Unpack DerivedData.tar')
       await exec.exec('tar', ['--version'])
     }
     await exec.exec('tar', args)
+    if (verbose) {
+      core.endGroup()
+    }
     core.info(`DerivedData has restored from cache: ${derivedDataDirectory}`)
   }
   return restored
@@ -109,7 +113,11 @@ async function restoreSourcePackages(
     let args = ['-xf', tar, '-C', path.dirname(sourcePackagesDirectory)]
     if (verbose) {
       args = ['-v', ...args]
+      core.startGroup('Unpack SourcePackages.tar')
       await exec.exec('tar', ['--version'])
+    }
+    if (verbose) {
+      core.endGroup()
     }
     await exec.exec('tar', args)
     core.info(`SourcePackages has restored from cache: ${sourcePackagesDirectory}`)
@@ -176,8 +184,6 @@ async function restoreMtime(
     }
     if (verbose) {
       core.endGroup()
-    }
-    if (verbose) {
       core.startGroup('Skipped files')
       skipped.forEach (v => {
         core.info(v)

@@ -82,8 +82,10 @@ export async function fakeCache(
   Object.assign(cache, {
     restoreCache: async (paths: string[], primaryKey: string, restoreKeys?: string[]): Promise<string | undefined> => {
       if (existsSync(paths[0])) {
+        core.info(`Debug: restoreCache success: ${paths[0]}`)
         return "restore-key"
       } else {
+        core.error(`Debug: restoreCache failure: ${paths[0]}`)
         return undefined
       }
     },

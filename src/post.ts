@@ -96,9 +96,14 @@ async function storeDerivedData(
   let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
   if (verbose) {
     args = ['-v', ...args]
+    core.startGroup('Pack DerivedData.tar')
     await exec.exec('tar', ['--version'])
   }
   await exec.exec('tar', args)
+  if (verbose) {
+    core.endGroup()
+  }
+  core.info(`DerivedData packed: ${tar}`)
   await cache.saveCache([tar], key)
 }
 
@@ -113,9 +118,14 @@ async function storeSourcePackages(
   let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
   if (verbose) {
     args = ['-v', ...args]
+    core.startGroup('Pack SourcePackages.tar')
     await exec.exec('tar', ['--version'])
   }
   await exec.exec('tar', args)
+  if (verbose) {
+    core.endGroup()
+  }
+  core.info(`SourcePackages packed: ${tar}`)
   await cache.saveCache([tar], key)
 }
 
@@ -198,6 +208,9 @@ async function storeMtime(
     } catch (error) {
       core.warning(`cannot read file stat: ${path}`)
     }
+  }
+  if (verbose) {
+    core.endGroup()
   }
   await fs.writeFile(jsonFile, JSON.stringify(json))
   core.info(`Stored ${stored} files : ${jsonFile}`)
