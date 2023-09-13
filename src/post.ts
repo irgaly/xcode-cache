@@ -149,12 +149,15 @@ async function storeMtime(
   if (useDefaultMtimeTarget) {
     patterns.push(...defaultMtimeTargets)
   }
+  const cwd = process.cwd()
   const globber = await glob.create(patterns.join('\n'))
-  const files = await globber.glob()
+  const files = (await globber.glob()).map(filePath => {
+    return path.relative(cwd, filePath)
+  })
   if (verbose) {
     core.startGroup('Stored files')
   }
-  files.forEach(async path => {
+  for(const path of files) {
     try {
       const stat = await fs.stat(path, {bigint: true})
       const mtime = util.getTimeString(stat.mtimeNs)
@@ -172,7 +175,7 @@ async function storeMtime(
     } catch (error) {
       core.warning(`cannot read file stat: ${path}`)
     }
-  })
+  }
   await fs.writeFile(jsonFile, JSON.stringify(json))
   core.info(`Stored ${stored} files : ${jsonFile}`)
 }

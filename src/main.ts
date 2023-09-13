@@ -137,7 +137,7 @@ async function restoreMtime(
     if (verbose) {
       core.startGroup('Restored files')
     }
-    files.forEach (async item => {
+    for (const item of files) {
       try {
         const stat = await fs.stat(item.path, {bigint: true})
         const fileMtime = stat.mtimeNs.toString()
@@ -170,7 +170,7 @@ async function restoreMtime(
         // file not exist
         // do nothing
       }
-    })
+    }
     if (verbose) {
       core.endGroup()
     }
