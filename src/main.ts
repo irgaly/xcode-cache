@@ -77,10 +77,13 @@ async function restoreDerivedData(
   verbose: boolean
 ): Promise<boolean> {
   const tar = path.join(tempDirectory, 'DerivedData.tar')
-  const restored = (await cache.restoreCache([tar], key, restoreKeys) != undefined)
+  core.info(`DerivedData.tar cache restoreKeys:\n${restoreKeys.join('\n')}`)
+  const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
+  const restored = (restoreKey != undefined)
   if (!restored) {
     core.info('DerivedData cache not found')
   } else {
+    core.saveState('deriveddata-restorekey', restoreKey)
     const parent = path.dirname(derivedDataDirectory)
     await fs.mkdir(parent, { recursive: true })
     let args = ['-xf', tar, '-C', path.dirname(derivedDataDirectory)]
@@ -105,11 +108,14 @@ async function restoreSourcePackages(
   restoreKeys: string[],
   verbose: boolean
 ): Promise<boolean> {
+  core.info(`SourcePackages.tar cache restoreKeys:\n${restoreKeys.join('\n')}`)
   const tar = path.join(tempDirectory, 'SourcePackages.tar')
-  const restored = (await cache.restoreCache([tar], key, restoreKeys) != undefined)
+  const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
+  const restored = (restoreKey != undefined)
   if (!restored) {
     core.info('SourcePackages cache not found')
   } else {
+    core.saveState('sourcepackages-restorekey', restoreKey)
     const parent = path.dirname(sourcePackagesDirectory)
     await fs.mkdir(parent, { recursive: true })
     let args = ['-xf', tar, '-C', path.dirname(sourcePackagesDirectory)]

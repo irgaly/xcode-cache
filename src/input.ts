@@ -82,7 +82,7 @@ export function getInput(): Input {
     getInputOrNull('sourcepackages-directory'),
     core.getMultilineInput('restore-mtime-targets'),
     core.getMultilineInput('swiftpm-package-resolved-file'),
-    core.getInput('swiftpm-cache-key'),
+    getInputOrNull('swiftpm-cache-key'),
     core.getMultilineInput('swiftpm-cache-restore-keys'),
     core.getBooleanInput('use-default-mtime-targets'),
     core.getBooleanInput('verbose')
