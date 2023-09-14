@@ -64265,7 +64265,13 @@ async function post() {
             core.warning('skipped to storing mtime');
         }
         else {
-            await storeMtime(derivedDataDirectory, sourcePackagesDirectory, input.restoreMtimeTargets, input.useDefaultMtimeTargets, input.verbose);
+            const derivedDataRestoreKey = core.getState('deriveddata-restorekey');
+            if (derivedDataRestoreKey == input.key) {
+                core.info(`DerivedData cache has been restored with same key: ${input.key}, not calculating mtime cache`);
+            }
+            else {
+                await storeMtime(derivedDataDirectory, sourcePackagesDirectory, input.restoreMtimeTargets, input.useDefaultMtimeTargets, input.verbose);
+            }
         }
         if (sourcePackagesDirectory == null) {
             core.info(`SourcePackages directory not found, skip storing SourcePackages`);
