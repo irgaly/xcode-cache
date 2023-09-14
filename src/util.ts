@@ -34,7 +34,6 @@ export async function calculateHash(
  *
  * directory hash:
  *   * children's fileName
- *   * children's mtimeNs
  */
 export async function calculateDirectoryHash(
   targetPath: string
@@ -42,9 +41,7 @@ export async function calculateDirectoryHash(
   const hash = crypto.createHash('sha256')
   const fileNames = (await fs.readdir(targetPath)).sort()
   for(const fileName of fileNames) {
-    const fileStat = await fs.stat(path.join(targetPath, fileName), {bigint: true})
     hash.update(fileName)
-    hash.update(fileStat.mtimeNs.toString())
   }
   return hash.digest('hex')
 }
