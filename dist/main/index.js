@@ -64267,7 +64267,10 @@ async function main() {
         else {
             await restoreSourcePackages(sourcePackagesDirectory, tempDirectory, await input.getSwiftpmCacheKey(), input.swiftpmCacheRestoreKeys, input.verbose);
         }
-        if (derivedDataRestored) {
+        if (!derivedDataRestored) {
+            core.info(`Skipped restoring mtime because of DerivedData is not restored`);
+        }
+        else {
             await restoreMtime(derivedDataDirectory, input.restoreMtimeTargets, input.verbose);
         }
         if (!debugLocal) {
