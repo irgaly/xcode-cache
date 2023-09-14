@@ -50,7 +50,9 @@ async function main() {
         input.verbose
       )
     }
-    if (derivedDataRestored) {
+    if (!derivedDataRestored) {
+      core.info(`Skipped restoring mtime because of DerivedData is not restored`)
+    } else {
       await restoreMtime(
         derivedDataDirectory,
         input.restoreMtimeTargets,
