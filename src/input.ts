@@ -77,7 +77,7 @@ export async function debugLocalInput(): Promise<boolean> {
 export function getInput(): Input {
   return new Input(
     core.getInput('key'),
-    core.getMultilineInput('restoreKeys'),
+    core.getMultilineInput('restore-keys'),
     getInputOrNull('deriveddata-directory'),
     getInputOrNull('sourcepackages-directory'),
     core.getMultilineInput('restore-mtime-targets'),
