@@ -178,7 +178,7 @@ async function restoreMtime(
           }
           if (sha256 != item.sha256) {
             if (verbose) {
-              skipped.push(`content not changed : ${item.path}`)
+              skipped.push(`contents changed : ${item.path}`)
             }
           } else {
             if (verbose) {
