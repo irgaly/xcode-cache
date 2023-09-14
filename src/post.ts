@@ -102,7 +102,7 @@ async function storeDerivedData(
         )
       }
     }
-    let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
+    let args = ['--posix', '-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
     if (verbose) {
       args = ['-v', ...args]
       core.startGroup('Pack DerivedData.tar')
@@ -130,7 +130,7 @@ async function storeSourcePackages(
   } else {
     const tar = path.join(tempDirectory, 'SourcePackages.tar')
     await fs.mkdir(tempDirectory, { recursive: true })
-    let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
+    let args = ['--posix', '-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
     if (verbose) {
       args = ['-v', ...args]
       core.startGroup('Pack SourcePackages.tar')
