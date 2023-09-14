@@ -95,6 +95,7 @@ async function storeDerivedData(
     let constainsSourcePackages = false
     if (sourcePackagesDirectory != null) {
       if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
+        // exclude SourcePackages directory's children
         const relativePath = path.relative(parent, sourcePackagesDirectory)
         excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap (fileName =>
           ['--exclude', `./${path.join(relativePath, fileName)}`]
