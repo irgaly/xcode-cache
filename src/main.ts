@@ -84,6 +84,7 @@ async function restoreDerivedData(
   if (!restored) {
     core.info('DerivedData cache not found')
   } else {
+    core.info(`DerivedData restored with cache key: ${restoreKey}`)
     core.saveState('deriveddata-restorekey', restoreKey)
     const parent = path.dirname(derivedDataDirectory)
     await fs.mkdir(parent, { recursive: true })
@@ -116,6 +117,7 @@ async function restoreSourcePackages(
   if (!restored) {
     core.info('SourcePackages cache not found')
   } else {
+    core.info(`SourcePackages restored with cache key: ${restoreKey}`)
     core.saveState('sourcepackages-restorekey', restoreKey)
     const parent = path.dirname(sourcePackagesDirectory)
     await fs.mkdir(parent, { recursive: true })
@@ -125,10 +127,10 @@ async function restoreSourcePackages(
       core.startGroup('Unpack SourcePackages.tar')
       await exec.exec('tar', ['--version'])
     }
+    await exec.exec('tar', args)
     if (verbose) {
       core.endGroup()
     }
-    await exec.exec('tar', args)
     core.info(`SourcePackages has restored from cache: ${sourcePackagesDirectory}`)
   }
   return restored
@@ -178,7 +180,7 @@ async function restoreMtime(
           }
           if (sha256 != item.sha256) {
             if (verbose) {
-              skipped.push(`content not changed : ${item.path}`)
+              skipped.push(`contents changed : ${item.path}`)
             }
           } else {
             if (verbose) {
