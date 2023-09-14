@@ -125,10 +125,10 @@ async function restoreSourcePackages(
       core.startGroup('Unpack SourcePackages.tar')
       await exec.exec('tar', ['--version'])
     }
+    await exec.exec('tar', args)
     if (verbose) {
       core.endGroup()
     }
-    await exec.exec('tar', args)
     core.info(`SourcePackages has restored from cache: ${sourcePackagesDirectory}`)
   }
   return restored
