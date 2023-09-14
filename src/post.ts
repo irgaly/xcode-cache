@@ -134,7 +134,15 @@ async function storeSourcePackages(
       core.endGroup()
     }
     core.info(`SourcePackages packed: ${tar}`)
-    await cache.saveCache([tar], key)
+    try {
+      await cache.saveCache([tar], key)
+    } catch (error) {
+      // in case cache key conflict,
+      // this occurs when SourcePackages directory is under DerivedData and
+      // DerivedData cache missed.
+      // then logging warning and treat as success.
+      core.warning(`SourcePackages cache key exists, not saved: ${error}`)
+    }
   }
 }
 
