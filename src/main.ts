@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as cache from '@actions/cache'
 import * as exec from '@actions/exec'
 import * as fs from 'fs/promises'
-import { BigIntStats } from 'fs'
+import { existsSync, BigIntStats } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { getInput, debugLocalInput } from './input'
@@ -59,7 +59,8 @@ async function main() {
         input.verbose
       )
     }
-    if (!debugLocal) {
+    if (!debugLocal && existsSync(tempDirectory)) {
+      core.info(`clean up: remove temporary directory: ${tempDirectory}`)
       await fs.rm(tempDirectory, { recursive: true, force: true })
     }
   } catch (error) {
