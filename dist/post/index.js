@@ -64188,7 +64188,7 @@ async function debugLocalInput() {
 }
 exports.debugLocalInput = debugLocalInput;
 function getInput() {
-    return new Input(core.getInput('key'), core.getMultilineInput('restoreKeys'), getInputOrNull('deriveddata-directory'), getInputOrNull('sourcepackages-directory'), core.getMultilineInput('restore-mtime-targets'), core.getMultilineInput('swiftpm-package-resolved-file'), getInputOrNull('swiftpm-cache-key'), core.getMultilineInput('swiftpm-cache-restore-keys'), core.getBooleanInput('use-default-mtime-targets'), core.getBooleanInput('verbose'));
+    return new Input(core.getInput('key'), core.getMultilineInput('restore-keys'), getInputOrNull('deriveddata-directory'), getInputOrNull('sourcepackages-directory'), core.getMultilineInput('restore-mtime-targets'), core.getMultilineInput('swiftpm-package-resolved-file'), getInputOrNull('swiftpm-cache-key'), core.getMultilineInput('swiftpm-cache-restore-keys'), core.getBooleanInput('use-default-mtime-targets'), core.getBooleanInput('verbose'));
 }
 exports.getInput = getInput;
 function getInputOrNull(name) {
