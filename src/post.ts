@@ -114,6 +114,7 @@ async function storeDerivedData(
     }
     core.info(`DerivedData packed: ${tar}`)
     await cache.saveCache([tar], key)
+    core.info(`DerivedData cache key: ${key}`)
   }
 }
 
@@ -142,6 +143,7 @@ async function storeSourcePackages(
     core.info(`SourcePackages packed: ${tar}`)
     try {
       await cache.saveCache([tar], key)
+      core.info(`SourcePackages cache key: ${key}`)
     } catch (error) {
       // in case cache key conflict,
       // this occurs when SourcePackages directory is under DerivedData and
