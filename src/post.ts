@@ -79,31 +79,36 @@ async function storeDerivedData(
   key: string,
   verbose: boolean
 ) {
-  const tar = path.join(tempDirectory, 'DerivedData.tar')
-  await fs.mkdir(tempDirectory, { recursive: true })
-  const parent = path.dirname(derivedDataDirectory)
-  let excludes: string[] = []
-  let constainsSourcePackages = false
-  if (sourcePackagesDirectory != null) {
-    if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
-      const relativePath = path.relative(parent, sourcePackagesDirectory)
-      excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap (fileName =>
-        ['--exclude', `./${path.join(relativePath, fileName)}`]
-      )
+  const restoreKey = core.getState('deriveddata-restorekey')
+  if (restoreKey == key) {
+    core.info(`DerivedData cache has been restored with same key: ${key}, not saving cache`)
+  } else {
+    const tar = path.join(tempDirectory, 'DerivedData.tar')
+    await fs.mkdir(tempDirectory, { recursive: true })
+    const parent = path.dirname(derivedDataDirectory)
+    let excludes: string[] = []
+    let constainsSourcePackages = false
+    if (sourcePackagesDirectory != null) {
+      if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
+        const relativePath = path.relative(parent, sourcePackagesDirectory)
+        excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap (fileName =>
+          ['--exclude', `./${path.join(relativePath, fileName)}`]
+        )
+      }
     }
+    let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
+    if (verbose) {
+      args = ['-v', ...args]
+      core.startGroup('Pack DerivedData.tar')
+      await exec.exec('tar', ['--version'])
+    }
+    await exec.exec('tar', args)
+    if (verbose) {
+      core.endGroup()
+    }
+    core.info(`DerivedData packed: ${tar}`)
+    await cache.saveCache([tar], key)
   }
-  let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
-  if (verbose) {
-    args = ['-v', ...args]
-    core.startGroup('Pack DerivedData.tar')
-    await exec.exec('tar', ['--version'])
-  }
-  await exec.exec('tar', args)
-  if (verbose) {
-    core.endGroup()
-  }
-  core.info(`DerivedData packed: ${tar}`)
-  await cache.saveCache([tar], key)
 }
 
 async function storeSourcePackages(
@@ -112,20 +117,25 @@ async function storeSourcePackages(
   key: string,
   verbose: boolean
 ) {
-  const tar = path.join(tempDirectory, 'SourcePackages.tar')
-  await fs.mkdir(tempDirectory, { recursive: true })
-  let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
-  if (verbose) {
-    args = ['-v', ...args]
-    core.startGroup('Pack SourcePackages.tar')
-    await exec.exec('tar', ['--version'])
+  const restoreKey = core.getState('sourcepackages-restorekey')
+  if (restoreKey == key) {
+    core.info(`SourcePackages cache has been restored with same key: ${key}, not saving cache`)
+  } else {
+    const tar = path.join(tempDirectory, 'SourcePackages.tar')
+    await fs.mkdir(tempDirectory, { recursive: true })
+    let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
+    if (verbose) {
+      args = ['-v', ...args]
+      core.startGroup('Pack SourcePackages.tar')
+      await exec.exec('tar', ['--version'])
+    }
+    await exec.exec('tar', args)
+    if (verbose) {
+      core.endGroup()
+    }
+    core.info(`SourcePackages packed: ${tar}`)
+    await cache.saveCache([tar], key)
   }
-  await exec.exec('tar', args)
-  if (verbose) {
-    core.endGroup()
-  }
-  core.info(`SourcePackages packed: ${tar}`)
-  await cache.saveCache([tar], key)
 }
 
 async function storeMtime(
