@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [ opened, reopened, synchronize, ready_for_review ]
 
 permissions:
   contents: write
@@ -15,8 +17,14 @@ concurrency:
 jobs:
   update-dist:
     runs-on: macos-latest
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && !github.event.pull_request.draft) }}
     steps:
       - uses: actions/checkout@v3
+        if: github.event_name == 'push'
+      - uses: actions/checkout@v3
+        if: github.event_name == 'pull_request'
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
       - uses: actions/setup-node@v3
         with:
           cache: npm
