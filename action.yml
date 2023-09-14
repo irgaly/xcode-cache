@@ -17,7 +17,7 @@ inputs:
     required: false
     default: ''
   sourcepackages-directory:
-    description: 'a directory of SourcePackages. default: ${deriveddata-directory}/SourcePackages'
+    description: 'a directory of SourcePackages. default: {deriveddata-directory}/SourcePackages'
     required: false
     default: ''
   restore-mtime-targets:
@@ -29,7 +29,7 @@ inputs:
     required: false
     default: ''
   swiftpm-cache-key:
-    description: 'cache key for SourcePackages. default: irgaly/xcode-cache-sourcepackages-${{ hashFiles({resolvedFiles}) }}'
+    description: 'cache key for SourcePackages. default: irgaly/xcode-cache-sourcepackages-{hashFiles({resolvedFiles})}'
     required: false
     default: ''
   swiftpm-cache-restore-keys:
