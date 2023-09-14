@@ -64235,6 +64235,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const cache = __importStar(__nccwpck_require__(7799));
 const exec = __importStar(__nccwpck_require__(1514));
 const fs = __importStar(__nccwpck_require__(3292));
+const fs_1 = __nccwpck_require__(7147);
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const input_1 = __nccwpck_require__(6747);
@@ -64273,7 +64274,8 @@ async function main() {
         else {
             await restoreMtime(derivedDataDirectory, input.restoreMtimeTargets, input.verbose);
         }
-        if (!debugLocal) {
+        if (!debugLocal && (0, fs_1.existsSync)(tempDirectory)) {
+            core.info(`clean up: remove temporary directory: ${tempDirectory}`);
             await fs.rm(tempDirectory, { recursive: true, force: true });
         }
     }
@@ -64285,7 +64287,7 @@ async function main() {
 }
 async function restoreDerivedData(derivedDataDirectory, tempDirectory, key, restoreKeys, verbose) {
     const tar = path.join(tempDirectory, 'DerivedData.tar');
-    core.info(`DerivedData.tar cache restoreKeys:\n${restoreKeys.join('\n')}`);
+    core.info(`DerivedData.tar cache key:\n${key}\nrestoreKeys:\n${restoreKeys.join('\n')}`);
     const restoreKey = await cache.restoreCache([tar], key, restoreKeys);
     const restored = (restoreKey != undefined);
     if (!restored) {
@@ -64310,7 +64312,7 @@ async function restoreDerivedData(derivedDataDirectory, tempDirectory, key, rest
     return restored;
 }
 async function restoreSourcePackages(sourcePackagesDirectory, tempDirectory, key, restoreKeys, verbose) {
-    core.info(`SourcePackages.tar cache restoreKeys:\n${restoreKeys.join('\n')}`);
+    core.info(`SourcePackages.tar cache key:\n${key}\nrestoreKeys:\n${restoreKeys.join('\n')}`);
     const tar = path.join(tempDirectory, 'SourcePackages.tar');
     const restoreKey = await cache.restoreCache([tar], key, restoreKeys);
     const restored = (restoreKey != undefined);
