@@ -3,6 +3,7 @@ import * as cache from '@actions/cache'
 import * as glob from '@actions/glob'
 import * as exec from '@actions/exec'
 import * as fs from 'fs/promises'
+import { existsSync } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { getInput, debugLocalInput } from './input'
@@ -30,8 +31,10 @@ async function post() {
     const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
     const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
-    try {
-      await fs.access(derivedDataDirectory)
+    if (!existsSync(derivedDataDirectory)) {
+      core.warning(`DerivedData directory not found: ${derivedDataDirectory}`)
+      core.warning('skipped to storing mtime')
+    } else {
       await storeMtime(
         derivedDataDirectory,
         sourcePackagesDirectory,
@@ -39,24 +42,20 @@ async function post() {
         input.useDefaultMtimeTargets,
         input.verbose
       )
-    } catch (error) {
-      core.warning(`DerivedData directory not found: ${derivedDataDirectory}`)
-      core.warning('skipped to storing mtime')
     }
     if (sourcePackagesDirectory == null) {
       core.info(`SourcePackages directory not found, skip storing SourcePackages`)
     } else {
-      try {
-        await fs.access(sourcePackagesDirectory)
+      if (!existsSync(sourcePackagesDirectory)) {
+        core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
+        core.warning('skipped to storing SourcePackages')
+      } else {
         await storeSourcePackages(
           sourcePackagesDirectory,
           tempDirectory,
           await input.getSwiftpmCacheKey(),
           input.verbose
         )
-      } catch (error) {
-        core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`)
-        core.warning('skipped to storing SourcePackages')
       }
     }
     await storeDerivedData(
