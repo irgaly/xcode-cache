@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as cache from '@actions/cache'
 import * as exec from '@actions/exec'
 import * as fs from 'fs/promises'
-import { BigIntStats } from 'fs'
+import { existsSync, BigIntStats } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import { getInput, debugLocalInput } from './input'
@@ -59,7 +59,8 @@ async function main() {
         input.verbose
       )
     }
-    if (!debugLocal) {
+    if (!debugLocal && existsSync(tempDirectory)) {
+      core.info(`clean up: remove temporary directory: ${tempDirectory}`)
       await fs.rm(tempDirectory, { recursive: true, force: true })
     }
   } catch (error) {
@@ -77,7 +78,7 @@ async function restoreDerivedData(
   verbose: boolean
 ): Promise<boolean> {
   const tar = path.join(tempDirectory, 'DerivedData.tar')
-  core.info(`DerivedData.tar cache restoreKeys:\n${restoreKeys.join('\n')}`)
+  core.info(`DerivedData.tar cache key:\n${key}\nrestoreKeys:\n${restoreKeys.join('\n')}`)
   const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
   const restored = (restoreKey != undefined)
   if (!restored) {
@@ -108,7 +109,7 @@ async function restoreSourcePackages(
   restoreKeys: string[],
   verbose: boolean
 ): Promise<boolean> {
-  core.info(`SourcePackages.tar cache restoreKeys:\n${restoreKeys.join('\n')}`)
+  core.info(`SourcePackages.tar cache key:\n${key}\nrestoreKeys:\n${restoreKeys.join('\n')}`)
   const tar = path.join(tempDirectory, 'SourcePackages.tar')
   const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
   const restored = (restoreKey != undefined)

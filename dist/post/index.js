@@ -64306,6 +64306,7 @@ async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, t
         let constainsSourcePackages = false;
         if (sourcePackagesDirectory != null) {
             if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
+                // exclude SourcePackages directory's children
                 const relativePath = path.relative(parent, sourcePackagesDirectory);
                 excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap(fileName => ['--exclude', `./${path.join(relativePath, fileName)}`]);
             }
@@ -64322,6 +64323,7 @@ async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, t
         }
         core.info(`DerivedData packed: ${tar}`);
         await cache.saveCache([tar], key);
+        core.info(`DerivedData cache key: ${key}`);
     }
 }
 async function storeSourcePackages(sourcePackagesDirectory, tempDirectory, key, verbose) {
@@ -64345,6 +64347,7 @@ async function storeSourcePackages(sourcePackagesDirectory, tempDirectory, key, 
         core.info(`SourcePackages packed: ${tar}`);
         try {
             await cache.saveCache([tar], key);
+            core.info(`SourcePackages cache key: ${key}`);
         }
         catch (error) {
             // in case cache key conflict,
