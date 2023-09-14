@@ -64188,7 +64188,7 @@ async function debugLocalInput() {
 }
 exports.debugLocalInput = debugLocalInput;
 function getInput() {
-    return new Input(core.getInput('key'), core.getMultilineInput('restoreKeys'), getInputOrNull('deriveddata-directory'), getInputOrNull('sourcepackages-directory'), core.getMultilineInput('restore-mtime-targets'), core.getMultilineInput('swiftpm-package-resolved-file'), core.getInput('swiftpm-cache-key'), core.getMultilineInput('swiftpm-cache-restore-keys'), core.getBooleanInput('use-default-mtime-targets'), core.getBooleanInput('verbose'));
+    return new Input(core.getInput('key'), core.getMultilineInput('restoreKeys'), getInputOrNull('deriveddata-directory'), getInputOrNull('sourcepackages-directory'), core.getMultilineInput('restore-mtime-targets'), core.getMultilineInput('swiftpm-package-resolved-file'), getInputOrNull('swiftpm-cache-key'), core.getMultilineInput('swiftpm-cache-restore-keys'), core.getBooleanInput('use-default-mtime-targets'), core.getBooleanInput('verbose'));
 }
 exports.getInput = getInput;
 function getInputOrNull(name) {
@@ -64236,6 +64236,7 @@ const cache = __importStar(__nccwpck_require__(7799));
 const glob = __importStar(__nccwpck_require__(8090));
 const exec = __importStar(__nccwpck_require__(1514));
 const fs = __importStar(__nccwpck_require__(3292));
+const fs_1 = __nccwpck_require__(7147);
 const path = __importStar(__nccwpck_require__(1017));
 const input_1 = __nccwpck_require__(6747);
 const util = __importStar(__nccwpck_require__(2629));
@@ -64259,25 +64260,23 @@ async function post() {
         const tempDirectory = path.join(process.env['RUNNER_TEMP'], 'irgaly-xcode-cache');
         const derivedDataDirectory = await input.getDerivedDataDirectory();
         const sourcePackagesDirectory = await input.getSourcePackagesDirectory();
-        try {
-            await fs.access(derivedDataDirectory);
-            await storeMtime(derivedDataDirectory, sourcePackagesDirectory, input.restoreMtimeTargets, input.useDefaultMtimeTargets, input.verbose);
-        }
-        catch (error) {
+        if (!(0, fs_1.existsSync)(derivedDataDirectory)) {
             core.warning(`DerivedData directory not found: ${derivedDataDirectory}`);
             core.warning('skipped to storing mtime');
+        }
+        else {
+            await storeMtime(derivedDataDirectory, sourcePackagesDirectory, input.restoreMtimeTargets, input.useDefaultMtimeTargets, input.verbose);
         }
         if (sourcePackagesDirectory == null) {
             core.info(`SourcePackages directory not found, skip storing SourcePackages`);
         }
         else {
-            try {
-                await fs.access(sourcePackagesDirectory);
-                await storeSourcePackages(sourcePackagesDirectory, tempDirectory, await input.getSwiftpmCacheKey(), input.verbose);
-            }
-            catch (error) {
+            if (!(0, fs_1.existsSync)(sourcePackagesDirectory)) {
                 core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`);
                 core.warning('skipped to storing SourcePackages');
+            }
+            else {
+                await storeSourcePackages(sourcePackagesDirectory, tempDirectory, await input.getSwiftpmCacheKey(), input.verbose);
             }
         }
         await storeDerivedData(await input.getDerivedDataDirectory(), sourcePackagesDirectory, tempDirectory, input.key, input.verbose);
@@ -64289,45 +64288,66 @@ async function post() {
     }
 }
 async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, tempDirectory, key, verbose) {
-    const tar = path.join(tempDirectory, 'DerivedData.tar');
-    await fs.mkdir(tempDirectory, { recursive: true });
-    const parent = path.dirname(derivedDataDirectory);
-    let excludes = [];
-    let constainsSourcePackages = false;
-    if (sourcePackagesDirectory != null) {
-        if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
-            const relativePath = path.relative(parent, sourcePackagesDirectory);
-            excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap(fileName => ['--exclude', `./${path.join(relativePath, fileName)}`]);
+    const restoreKey = core.getState('deriveddata-restorekey');
+    if (restoreKey == key) {
+        core.info(`DerivedData cache has been restored with same key: ${key}, not saving cache`);
+    }
+    else {
+        const tar = path.join(tempDirectory, 'DerivedData.tar');
+        await fs.mkdir(tempDirectory, { recursive: true });
+        const parent = path.dirname(derivedDataDirectory);
+        let excludes = [];
+        let constainsSourcePackages = false;
+        if (sourcePackagesDirectory != null) {
+            if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
+                const relativePath = path.relative(parent, sourcePackagesDirectory);
+                excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap(fileName => ['--exclude', `./${path.join(relativePath, fileName)}`]);
+            }
         }
+        let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)];
+        if (verbose) {
+            args = ['-v', ...args];
+            core.startGroup('Pack DerivedData.tar');
+            await exec.exec('tar', ['--version']);
+        }
+        await exec.exec('tar', args);
+        if (verbose) {
+            core.endGroup();
+        }
+        core.info(`DerivedData packed: ${tar}`);
+        await cache.saveCache([tar], key);
     }
-    let args = ['-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)];
-    if (verbose) {
-        args = ['-v', ...args];
-        core.startGroup('Pack DerivedData.tar');
-        await exec.exec('tar', ['--version']);
-    }
-    await exec.exec('tar', args);
-    if (verbose) {
-        core.endGroup();
-    }
-    core.info(`DerivedData packed: ${tar}`);
-    await cache.saveCache([tar], key);
 }
 async function storeSourcePackages(sourcePackagesDirectory, tempDirectory, key, verbose) {
-    const tar = path.join(tempDirectory, 'SourcePackages.tar');
-    await fs.mkdir(tempDirectory, { recursive: true });
-    let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)];
-    if (verbose) {
-        args = ['-v', ...args];
-        core.startGroup('Pack SourcePackages.tar');
-        await exec.exec('tar', ['--version']);
+    const restoreKey = core.getState('sourcepackages-restorekey');
+    if (restoreKey == key) {
+        core.info(`SourcePackages cache has been restored with same key: ${key}, not saving cache`);
     }
-    await exec.exec('tar', args);
-    if (verbose) {
-        core.endGroup();
+    else {
+        const tar = path.join(tempDirectory, 'SourcePackages.tar');
+        await fs.mkdir(tempDirectory, { recursive: true });
+        let args = ['-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)];
+        if (verbose) {
+            args = ['-v', ...args];
+            core.startGroup('Pack SourcePackages.tar');
+            await exec.exec('tar', ['--version']);
+        }
+        await exec.exec('tar', args);
+        if (verbose) {
+            core.endGroup();
+        }
+        core.info(`SourcePackages packed: ${tar}`);
+        try {
+            await cache.saveCache([tar], key);
+        }
+        catch (error) {
+            // in case cache key conflict,
+            // this occurs when SourcePackages directory is under DerivedData and
+            // DerivedData cache missed.
+            // then logging warning and treat as success.
+            core.warning(`SourcePackages cache key exists, not saved: ${error}`);
+        }
     }
-    core.info(`SourcePackages packed: ${tar}`);
-    await cache.saveCache([tar], key);
 }
 async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restoreMtimeTargets, useDefaultMtimeTarget, verbose) {
     let stored = 0;

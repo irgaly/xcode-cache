@@ -64188,7 +64188,7 @@ async function debugLocalInput() {
 }
 exports.debugLocalInput = debugLocalInput;
 function getInput() {
-    return new Input(core.getInput('key'), core.getMultilineInput('restoreKeys'), getInputOrNull('deriveddata-directory'), getInputOrNull('sourcepackages-directory'), core.getMultilineInput('restore-mtime-targets'), core.getMultilineInput('swiftpm-package-resolved-file'), core.getInput('swiftpm-cache-key'), core.getMultilineInput('swiftpm-cache-restore-keys'), core.getBooleanInput('use-default-mtime-targets'), core.getBooleanInput('verbose'));
+    return new Input(core.getInput('key'), core.getMultilineInput('restoreKeys'), getInputOrNull('deriveddata-directory'), getInputOrNull('sourcepackages-directory'), core.getMultilineInput('restore-mtime-targets'), core.getMultilineInput('swiftpm-package-resolved-file'), getInputOrNull('swiftpm-cache-key'), core.getMultilineInput('swiftpm-cache-restore-keys'), core.getBooleanInput('use-default-mtime-targets'), core.getBooleanInput('verbose'));
 }
 exports.getInput = getInput;
 function getInputOrNull(name) {
@@ -64285,11 +64285,14 @@ async function main() {
 }
 async function restoreDerivedData(derivedDataDirectory, tempDirectory, key, restoreKeys, verbose) {
     const tar = path.join(tempDirectory, 'DerivedData.tar');
-    const restored = (await cache.restoreCache([tar], key, restoreKeys) != undefined);
+    core.info(`DerivedData.tar cache restoreKeys:\n${restoreKeys.join('\n')}`);
+    const restoreKey = await cache.restoreCache([tar], key, restoreKeys);
+    const restored = (restoreKey != undefined);
     if (!restored) {
         core.info('DerivedData cache not found');
     }
     else {
+        core.saveState('deriveddata-restorekey', restoreKey);
         const parent = path.dirname(derivedDataDirectory);
         await fs.mkdir(parent, { recursive: true });
         let args = ['-xf', tar, '-C', path.dirname(derivedDataDirectory)];
@@ -64307,12 +64310,15 @@ async function restoreDerivedData(derivedDataDirectory, tempDirectory, key, rest
     return restored;
 }
 async function restoreSourcePackages(sourcePackagesDirectory, tempDirectory, key, restoreKeys, verbose) {
+    core.info(`SourcePackages.tar cache restoreKeys:\n${restoreKeys.join('\n')}`);
     const tar = path.join(tempDirectory, 'SourcePackages.tar');
-    const restored = (await cache.restoreCache([tar], key, restoreKeys) != undefined);
+    const restoreKey = await cache.restoreCache([tar], key, restoreKeys);
+    const restored = (restoreKey != undefined);
     if (!restored) {
         core.info('SourcePackages cache not found');
     }
     else {
+        core.saveState('sourcepackages-restorekey', restoreKey);
         const parent = path.dirname(sourcePackagesDirectory);
         await fs.mkdir(parent, { recursive: true });
         let args = ['-xf', tar, '-C', path.dirname(sourcePackagesDirectory)];
