@@ -84,6 +84,7 @@ async function restoreDerivedData(
   if (!restored) {
     core.info('DerivedData cache not found')
   } else {
+    core.info(`DerivedData restored with cache key: ${restoreKey}`)
     core.saveState('deriveddata-restorekey', restoreKey)
     const parent = path.dirname(derivedDataDirectory)
     await fs.mkdir(parent, { recursive: true })
@@ -116,6 +117,7 @@ async function restoreSourcePackages(
   if (!restored) {
     core.info('SourcePackages cache not found')
   } else {
+    core.info(`SourcePackages restored with cache key: ${restoreKey}`)
     core.saveState('sourcepackages-restorekey', restoreKey)
     const parent = path.dirname(sourcePackagesDirectory)
     await fs.mkdir(parent, { recursive: true })
