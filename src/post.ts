@@ -190,9 +190,9 @@ async function storeMtime(
     return order
   })
   patterns = [...patterns, ...targets]
-  patterns = [...patterns, `!${derivedDataDirectory}`]
+  patterns = [...patterns, `!${derivedDataDirectory}/**/*`]
   if (sourcePackagesDirectory != null) {
-    patterns = [...patterns, `!${sourcePackagesDirectory}`]
+    patterns = [...patterns, `!${sourcePackagesDirectory}/**/*`]
   }
   core.info(`Storing to:\n  ${jsonFile}`)
   if (verbose) {
