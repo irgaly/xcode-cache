@@ -60083,24 +60083,26 @@ async function main() {
         }
         const runnerOs = process.env['RUNNER_OS'];
         if (runnerOs != 'macOS') {
-            throw new Error(`host is not macOS: ${runnerOs}`);
+            throw new Error(`setup-xcode supports only macOS, current host is ${runnerOs}`);
         }
         const input = (0, input_1.getInput)();
-        core.info('> inputs');
+        core.info('Input parameters:');
         Object.entries(input).forEach(([key, value]) => {
-            core.info(`${key}: ${value}`);
+            core.info(`  ${key} = ${value}`);
         });
         core.info('');
         const tempDirectory = path.join(process.env['RUNNER_TEMP'], 'irgaly-xcode-cache');
         const derivedDataDirectory = await input.getDerivedDataDirectory();
         const derivedDataRestored = await restoreDerivedData(derivedDataDirectory, tempDirectory, input.key, input.restoreKeys, input.verbose);
+        core.info('');
         const sourcePackagesDirectory = await input.getSourcePackagesDirectory();
         if (sourcePackagesDirectory == null) {
-            core.info(`SourcePackages directory not found, skip restoring SourcePackages`);
+            core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`);
         }
         else {
             await restoreSourcePackages(sourcePackagesDirectory, tempDirectory, await input.getSwiftpmCacheKey(), input.swiftpmCacheRestoreKeys, input.verbose);
         }
+        core.info('');
         if (!derivedDataRestored) {
             core.info(`Skipped restoring mtime because of DerivedData is not restored`);
         }
@@ -60108,7 +60110,7 @@ async function main() {
             await restoreMtime(derivedDataDirectory, input.restoreMtimeTargets, input.verbose);
         }
         if (!debugLocal && (0, fs_1.existsSync)(tempDirectory)) {
-            core.info(`clean up: remove temporary directory: ${tempDirectory}`);
+            core.info(`Clean up: removing temporary directory: ${tempDirectory}`);
             await fs.rm(tempDirectory, { recursive: true, force: true });
         }
     }
@@ -60119,15 +60121,17 @@ async function main() {
     }
 }
 async function restoreDerivedData(derivedDataDirectory, tempDirectory, key, restoreKeys, verbose) {
+    core.info(`Restoring DerivedData...`);
+    core.info(`cache key:\n  ${key}`);
+    core.info(`restore keys:\n  ${restoreKeys.join('\n')}`);
     const tar = path.join(tempDirectory, 'DerivedData.tar');
-    core.info(`DerivedData.tar cache key:\n${key}\nrestoreKeys:\n${restoreKeys.join('\n')}`);
     const restoreKey = await cache.restoreCache([tar], key, restoreKeys);
     const restored = (restoreKey != undefined);
     if (!restored) {
         core.info('DerivedData cache not found');
     }
     else {
-        core.info(`DerivedData restored with cache key: ${restoreKey}`);
+        core.info(`Restored cache key:\n  ${restoreKey}`);
         core.saveState('deriveddata-restorekey', restoreKey);
         const parent = path.dirname(derivedDataDirectory);
         await fs.mkdir(parent, { recursive: true });
@@ -60141,12 +60145,14 @@ async function restoreDerivedData(derivedDataDirectory, tempDirectory, key, rest
         if (verbose) {
             core.endGroup();
         }
-        core.info(`DerivedData has restored from cache: ${derivedDataDirectory}`);
+        core.info(`DerivedData has been restored to:\n  ${derivedDataDirectory}`);
     }
     return restored;
 }
 async function restoreSourcePackages(sourcePackagesDirectory, tempDirectory, key, restoreKeys, verbose) {
-    core.info(`SourcePackages.tar cache key:\n${key}\nrestoreKeys:\n${restoreKeys.join('\n')}`);
+    core.info(`Restoring SourcePackages...`);
+    core.info(`cache key:\n  ${key}`);
+    core.info(`restore keys:\n  ${restoreKeys.join('\n')}`);
     const tar = path.join(tempDirectory, 'SourcePackages.tar');
     const restoreKey = await cache.restoreCache([tar], key, restoreKeys);
     const restored = (restoreKey != undefined);
@@ -60154,7 +60160,7 @@ async function restoreSourcePackages(sourcePackagesDirectory, tempDirectory, key
         core.info('SourcePackages cache not found');
     }
     else {
-        core.info(`SourcePackages restored with cache key: ${restoreKey}`);
+        core.info(`Restored cache key:\n  ${restoreKey}`);
         core.saveState('sourcepackages-restorekey', restoreKey);
         const parent = path.dirname(sourcePackagesDirectory);
         await fs.mkdir(parent, { recursive: true });
@@ -60168,11 +60174,12 @@ async function restoreSourcePackages(sourcePackagesDirectory, tempDirectory, key
         if (verbose) {
             core.endGroup();
         }
-        core.info(`SourcePackages has restored from cache: ${sourcePackagesDirectory}`);
+        core.info(`SourcePackages has been restored to:\n  ${sourcePackagesDirectory}`);
     }
     return restored;
 }
 async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) {
+    core.info(`Restoring mtime...`);
     let changed = 0;
     let skipped = [];
     const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json');
@@ -60181,13 +60188,13 @@ async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) 
         json = await fs.readFile(jsonFile, 'utf8');
     }
     catch (error) {
-        core.info(`xcode-cache-mtime.json not found: ${jsonFile}`);
+        core.warning(`xcode-cache-mtime.json not found: ${jsonFile}`);
     }
     if (json != null) {
         const files = JSON.parse(json);
-        core.info(`restore mtime from ${jsonFile}`);
+        core.info(`Restoring from:\n  ${jsonFile}`);
         if (verbose) {
-            core.startGroup('Restored files');
+            core.startGroup('Restoring mtime');
         }
         for (const item of files) {
             let stat = null;
@@ -60203,7 +60210,7 @@ async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) 
                 const cacheMtime = item.time.replace('.', '');
                 if (fileMtime == cacheMtime) {
                     if (verbose) {
-                        skipped.push(`mtime not changed : ${item.path}`);
+                        skipped.push(`same mtime : ${item.path}`);
                     }
                 }
                 else {
@@ -60221,7 +60228,7 @@ async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) 
                     }
                     else {
                         if (verbose) {
-                            core.info(`=> ${item.time} : ${item.path}`);
+                            core.info(`${util.getTimeString(stat.mtimeNs)} => ${item.time} : ${item.path}`);
                         }
                         const [second, nano] = item.time.split('.').map(v => Number(v));
                         nanoutimes.utimesSync(item.path, second, nano, second, nano);
@@ -60232,13 +60239,15 @@ async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) 
         }
         if (verbose) {
             core.endGroup();
-            core.startGroup('Skipped files');
-            skipped.forEach(v => {
-                core.info(v);
-            });
-            core.endGroup();
+            if (0 < skipped.length) {
+                core.startGroup('Skipped files');
+                skipped.forEach(v => {
+                    core.info(v);
+                });
+                core.endGroup();
+            }
         }
-        core.info(`Restored ${changed} files.`);
+        core.info(`Restored ${changed} file's mtimes.`);
     }
 }
 
