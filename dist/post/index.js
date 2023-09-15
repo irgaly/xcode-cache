@@ -60197,6 +60197,8 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
         "**/*.xcassets",
         "**/*.bundle",
         "**/*.bundle/**/*",
+        "**/*.xcdatamodel",
+        "**/*.xcdatamodel/**/*",
         "**/*.m",
         "**/*.mm",
         "**/*.h",
