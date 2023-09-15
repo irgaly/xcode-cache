@@ -161,6 +161,8 @@ async function storeMtime(
     "**/*.xcassets",
     "**/*.bundle",
     "**/*.bundle/**/*",
+    "**/*.xcdatamodel",
+    "**/*.xcdatamodel/**/*",
     "**/*.m",
     "**/*.mm",
     "**/*.h",
