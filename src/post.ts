@@ -59,9 +59,7 @@ async function post() {
       } else {
         await storeSourcePackages(
           sourcePackagesDirectory,
-          tempDirectory,
-          await input.getSwiftpmCacheKey(),
-          input.verbose
+          await input.getSwiftpmCacheKey()
         )
       }
     }
@@ -70,9 +68,12 @@ async function post() {
       await input.getDerivedDataDirectory(),
       sourcePackagesDirectory,
       tempDirectory,
-      input.key,
-      input.verbose
+      input.key
     )
+    if (!debugLocal && existsSync(tempDirectory)) {
+      core.info(`Clean up: removing temporary directory: ${tempDirectory}`)
+      await fs.rm(tempDirectory, { recursive: true, force: true })
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
@@ -84,8 +85,7 @@ async function storeDerivedData(
   derivedDataDirectory: string,
   sourcePackagesDirectory: string | null,
   tempDirectory: string,
-  key: string,
-  verbose: boolean
+  key: string
 ) {
   const restoreKey = core.getState('deriveddata-restorekey')
   if (restoreKey == key) {
@@ -93,41 +93,33 @@ async function storeDerivedData(
     core.info('Skipped storing SourcePackages')
   } else {
     core.info(`Storing DerivedData...`)
-    const tar = path.join(tempDirectory, 'DerivedData.tar')
-    await fs.mkdir(tempDirectory, { recursive: true })
-    const parent = path.dirname(derivedDataDirectory)
-    let excludes: string[] = []
-    let constainsSourcePackages = false
+    core.info(`Cache path:\n  ${derivedDataDirectory}`)
     if (sourcePackagesDirectory != null) {
-      if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory)) {
-        // exclude SourcePackages directory's children
-        const relativePath = path.relative(parent, sourcePackagesDirectory)
-        excludes = (await fs.readdir(sourcePackagesDirectory)).flatMap (fileName =>
-          ['--exclude', `./${path.join(relativePath, fileName)}`]
-        )
+      if (
+        util.pathContains(derivedDataDirectory, sourcePackagesDirectory) &&
+        existsSync(sourcePackagesDirectory)
+      ) {
+        // replace SourcePackages directory by empty directory
+        await fs.mkdir(tempDirectory, { recursive: true })
+        await fs.rename(sourcePackagesDirectory, path.join(tempDirectory, path.basename(sourcePackagesDirectory)))
+        await fs.mkdir(sourcePackagesDirectory)
       }
     }
-    let args = ['--posix', '-cf', tar, ...excludes, '-C', parent, path.basename(derivedDataDirectory)]
-    if (verbose) {
-      args = ['-v', ...args]
-      core.startGroup('Pack DerivedData.tar')
-      await exec.exec('tar', ['--version'])
-    }
-    await exec.exec('tar', args)
-    if (verbose) {
-      core.endGroup()
-    }
-    core.info(`Packed to:\n  ${tar}`)
-    await cache.saveCache([tar], key)
+    await cache.saveCache([derivedDataDirectory], key)
     core.info(`Cached with key:\n  ${key}`)
+    if (sourcePackagesDirectory != null) {
+      const backup = path.join(tempDirectory, path.basename(sourcePackagesDirectory))
+      if (existsSync(backup)) {
+        await fs.rm(sourcePackagesDirectory, { recursive: true, force: true })
+        await fs.rename(backup, sourcePackagesDirectory)
+      }
+    }
   }
 }
 
 async function storeSourcePackages(
   sourcePackagesDirectory: string,
-  tempDirectory: string,
-  key: string,
-  verbose: boolean
+  key: string
 ) {
   const restoreKey = core.getState('sourcepackages-restorekey')
   if (restoreKey == key) {
@@ -135,21 +127,9 @@ async function storeSourcePackages(
     core.info('Skipped storing SourcePackages')
   } else {
     core.info(`Storing SourcePackages...`)
-    const tar = path.join(tempDirectory, 'SourcePackages.tar')
-    await fs.mkdir(tempDirectory, { recursive: true })
-    let args = ['--posix', '-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
-    if (verbose) {
-      args = ['-v', ...args]
-      core.startGroup('Pack SourcePackages.tar')
-      await exec.exec('tar', ['--version'])
-    }
-    await exec.exec('tar', args)
-    if (verbose) {
-      core.endGroup()
-    }
-    core.info(`Packed to:\n  ${tar}`)
+    core.info(`Cache path:\n  ${sourcePackagesDirectory}`)
     try {
-      await cache.saveCache([tar], key)
+      await cache.saveCache([sourcePackagesDirectory], key)
       core.info(`Cached with key:\n  ${key}`)
     } catch (error) {
       // in case cache key conflict,

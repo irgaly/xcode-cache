@@ -29,14 +29,11 @@ async function main() {
       core.info(`  ${key} = ${value}`)
     })
     core.info('')
-    const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
     const derivedDataRestored = await restoreDerivedData(
       derivedDataDirectory,
-      tempDirectory,
       input.key,
-      input.restoreKeys,
-      input.verbose
+      input.restoreKeys
     )
     core.info('')
     const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
@@ -45,10 +42,8 @@ async function main() {
     } else {
       await restoreSourcePackages(
         sourcePackagesDirectory,
-        tempDirectory,
         await input.getSwiftpmCacheKey(),
-        input.swiftpmCacheRestoreKeys,
-        input.verbose
+        input.swiftpmCacheRestoreKeys
       )
     }
     core.info('')
@@ -61,10 +56,6 @@ async function main() {
         input.verbose
       )
     }
-    if (!debugLocal && existsSync(tempDirectory)) {
-      core.info(`Clean up: removing temporary directory: ${tempDirectory}`)
-      await fs.rm(tempDirectory, { recursive: true, force: true })
-    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
@@ -74,70 +65,40 @@ async function main() {
 
 async function restoreDerivedData(
   derivedDataDirectory: string,
-  tempDirectory: string,
   key: string,
-  restoreKeys: string[],
-  verbose: boolean
+  restoreKeys: string[]
 ): Promise<boolean> {
   core.info(`Restoring DerivedData...`)
   core.info(`cache key:\n  ${key}`)
   core.info(`restore keys:\n  ${restoreKeys.join('\n')}`)
-  const tar = path.join(tempDirectory, 'DerivedData.tar')
-  const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
+  const restoreKey = await cache.restoreCache([derivedDataDirectory], key, restoreKeys)
   const restored = (restoreKey != undefined)
   if (!restored) {
     core.info('DerivedData cache not found')
   } else {
     core.info(`Restored cache key:\n  ${restoreKey}`)
     core.saveState('deriveddata-restorekey', restoreKey)
-    const parent = path.dirname(derivedDataDirectory)
-    await fs.mkdir(parent, { recursive: true })
-    let args = ['-xf', tar, '-C', path.dirname(derivedDataDirectory)]
-    if (verbose) {
-      args = ['-v', ...args]
-      core.startGroup('Unpack DerivedData.tar')
-      await exec.exec('tar', ['--version'])
-    }
-    await exec.exec('tar', args)
-    if (verbose) {
-      core.endGroup()
-    }
-    core.info(`DerivedData has been restored to:\n  ${derivedDataDirectory}`)
+    core.info(`Restored to:\n  ${derivedDataDirectory}`)
   }
   return restored
 }
 
 async function restoreSourcePackages(
   sourcePackagesDirectory: string,
-  tempDirectory: string,
   key: string,
-  restoreKeys: string[],
-  verbose: boolean
+  restoreKeys: string[]
 ): Promise<boolean> {
   core.info(`Restoring SourcePackages...`)
   core.info(`cache key:\n  ${key}`)
   core.info(`restore keys:\n  ${restoreKeys.join('\n')}`)
-  const tar = path.join(tempDirectory, 'SourcePackages.tar')
-  const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
+  const restoreKey = await cache.restoreCache([sourcePackagesDirectory], key, restoreKeys)
   const restored = (restoreKey != undefined)
   if (!restored) {
     core.info('SourcePackages cache not found')
   } else {
     core.info(`Restored cache key:\n  ${restoreKey}`)
     core.saveState('sourcepackages-restorekey', restoreKey)
-    const parent = path.dirname(sourcePackagesDirectory)
-    await fs.mkdir(parent, { recursive: true })
-    let args = ['-xf', tar, '-C', path.dirname(sourcePackagesDirectory)]
-    if (verbose) {
-      args = ['-v', ...args]
-      core.startGroup('Unpack SourcePackages.tar')
-      await exec.exec('tar', ['--version'])
-    }
-    await exec.exec('tar', args)
-    if (verbose) {
-      core.endGroup()
-    }
-    core.info(`SourcePackages has been restored to:\n  ${sourcePackagesDirectory}`)
+    core.info(`Restored to:\n  ${sourcePackagesDirectory}`)
   }
   return restored
 }
