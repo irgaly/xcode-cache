@@ -12,10 +12,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20.6.1
+      - id: artifact-name
+        run: |
+          echo "name=$(node -p '`node-v${process.versions.modules}-darwin-${os.arch()}`')" >> "$GITHUB_OUTPUT"
       - run: |
           npm install -g node-gyp
           node-gyp configure && node-gyp build
+          mkdir -p "artifact/${{ steps.artifact-name.outputs.name }}"
+          mv build/Release/nanoutimes.node "artifact/${{ steps.artifact-name.outputs.name }}"
       - uses: actions/upload-artifact@v3
         with:
-          name: nanoutimes.node
-          path: build/Release/nanoutimes.node
+          name: ${{ steps.artifact-name.outputs.name }}
+          path: artifact
