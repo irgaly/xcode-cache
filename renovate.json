@@ -1,0 +1,27 @@
+{
+  "extends": [
+    "config:base",
+    "schedule:quarterly"
+  ],
+  "packageRules": [
+    {
+      "updateTypes": [
+        "patch"
+      ],
+      "enabled": false
+    },
+    {
+      "groupName": "node",
+      "enabled": false,
+      "matchPackageNames": [
+        "node"
+      ]
+    },
+    {
+      "groupName": "@actions",
+      "matchPackagePrefixes": [
+        "@actions/"
+      ]
+    }
+  ]
+}
