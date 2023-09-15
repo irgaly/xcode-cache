@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "20.6.0",
-    "@vercel/ncc": "0.34.0",
+    "@vercel/ncc": "0.38.0",
     "ts-node": "10.9.1",
     "typescript": "5.2.2"
   }
