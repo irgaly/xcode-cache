@@ -37,7 +37,7 @@ inputs:
     required: false
     default: ''
   use-default-mtime-targets:
-    description: 'process default mtime targets: **/*.swift , **/*.xib , **/*.storyboard , **/*.strings , **/*.plist , **/*.bundle , **/*.bundle/**/* , **/*.m , **/*.mm , **/*.h , **/*.c , **/*.cc , **/*.cpp , **/*.hpp , **/*.hxx'
+    description: 'process default mtime targets: **/*.swift , **/*.xib , **/*.storyboard , **/*.strings , **/*.plist , **/*.xcassets , **/*.bundle , **/*.bundle/**/* , **/*.m , **/*.mm , **/*.h , **/*.c , **/*.cc , **/*.cpp , **/*.hpp , **/*.hxx'
     required: false
     default: 'true'
   verbose:
