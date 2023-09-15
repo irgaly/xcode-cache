@@ -21,7 +21,7 @@ inputs:
     required: false
     default: ''
   restore-mtime-targets:
-    description: 'the targets glob pattern of restoring mtime. exclude pattern ''!{pattern}'' can be used.'
+    description: 'the targets glob pattern of restoring mtime. exclude pattern ''!{pattern}'' can be used. This glob pattern is applied with GitHub action toolkit glob option implicitDescendants = false'
     required: false
     default: ''
   swiftpm-package-resolved-file:
