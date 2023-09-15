@@ -11,7 +11,7 @@ jobs:
           repository: josepharhar/nanoutimes
       - uses: actions/setup-node@v3
         with:
-          node-version: 20.6.1
+          node-version: 16.20.2
       - run: |
           npm install -g node-gyp
           node-gyp configure && node-gyp build
