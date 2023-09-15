@@ -9,7 +9,7 @@ inputs:
     description: 'cache key for DerivedData'
     required: true
   restore-keys:
-    description: 'cache restore keys for DerivedData. example: '
+    description: 'cache restore keys for DerivedData.'
     required: false
     default: ''
   deriveddata-directory:
