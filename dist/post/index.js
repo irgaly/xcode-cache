@@ -60197,7 +60197,6 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
         "**/*.xcassets",
         "**/*.bundle",
         "**/*.bundle/**/*",
-        "**/*.bundle/**/*",
         "**/*.m",
         "**/*.mm",
         "**/*.h",
@@ -60238,7 +60237,7 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
         });
     }
     const cwd = process.cwd();
-    const globber = await glob.create(patterns.join('\n'));
+    const globber = await glob.create(patterns.join('\n'), { implicitDescendants: false });
     const files = (await globber.glob()).map(filePath => {
         return path.relative(cwd, filePath);
     });
