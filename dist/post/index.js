@@ -60201,6 +60201,7 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
         "**/*.storyboard",
         "**/*.strings",
         "**/*.plist",
+        "**/*.xcassets",
         "**/*.bundle",
         "**/*.bundle/**/*",
         "**/*.bundle/**/*",
