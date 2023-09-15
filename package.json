@@ -10,16 +10,15 @@
     "post": "ts-node src/post.ts"
   },
   "dependencies": {
-    "@actions/cache": "^1.0.9",
-    "@actions/core": "^1.6.0",
-    "@actions/exec": "^1.0.4",
-    "@actions/glob": "^0.2.0",
-    "@actions/tool-cache": "^1.7.1"
+    "@actions/cache": "1.0.9",
+    "@actions/core": "1.6.0",
+    "@actions/exec": "1.0.4",
+    "@actions/glob": "0.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.6.0",
-    "@vercel/ncc": "^0.34.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "@types/node": "20.6.0",
+    "@vercel/ncc": "0.34.0",
+    "ts-node": "10.9.1",
+    "typescript": "5.2.2"
   }
 }

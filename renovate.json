@@ -1,6 +1,27 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:base",
+    "schedule:quarterly"
+  ],
+  "packageRules": [
+    {
+      "updateTypes": [
+        "patch"
+      ],
+      "enabled": false
+    },
+    {
+      "groupName": "node",
+      "enabled": false,
+      "matchPackageNames": [
+        "node"
+      ]
+    },
+    {
+      "groupName": "@actions",
+      "matchPackagePrefixes": [
+        "@actions/"
+      ]
+    }
   ]
 }
