@@ -59,9 +59,7 @@ async function post() {
       } else {
         await storeSourcePackages(
           sourcePackagesDirectory,
-          tempDirectory,
-          await input.getSwiftpmCacheKey(),
-          input.verbose
+          await input.getSwiftpmCacheKey()
         )
       }
     }
@@ -125,9 +123,7 @@ async function storeDerivedData(
 
 async function storeSourcePackages(
   sourcePackagesDirectory: string,
-  tempDirectory: string,
-  key: string,
-  verbose: boolean
+  key: string
 ) {
   const restoreKey = core.getState('sourcepackages-restorekey')
   if (restoreKey == key) {
@@ -135,21 +131,9 @@ async function storeSourcePackages(
     core.info('Skipped storing SourcePackages')
   } else {
     core.info(`Storing SourcePackages...`)
-    const tar = path.join(tempDirectory, 'SourcePackages.tar')
-    await fs.mkdir(tempDirectory, { recursive: true })
-    let args = ['--posix', '-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)]
-    if (verbose) {
-      args = ['-v', ...args]
-      core.startGroup('Pack SourcePackages.tar')
-      await exec.exec('tar', ['--version'])
-    }
-    await exec.exec('tar', args)
-    if (verbose) {
-      core.endGroup()
-    }
-    core.info(`Packed to:\n  ${tar}`)
+    core.info(`Cache path:\n  ${sourcePackagesDirectory}`)
     try {
-      await cache.saveCache([tar], key)
+      await cache.saveCache([sourcePackagesDirectory], key)
       core.info(`Cached with key:\n  ${key}`)
     } catch (error) {
       // in case cache key conflict,

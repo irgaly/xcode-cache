@@ -45,10 +45,8 @@ async function main() {
     } else {
       await restoreSourcePackages(
         sourcePackagesDirectory,
-        tempDirectory,
         await input.getSwiftpmCacheKey(),
-        input.swiftpmCacheRestoreKeys,
-        input.verbose
+        input.swiftpmCacheRestoreKeys
       )
     }
     core.info('')
@@ -109,35 +107,20 @@ async function restoreDerivedData(
 
 async function restoreSourcePackages(
   sourcePackagesDirectory: string,
-  tempDirectory: string,
   key: string,
-  restoreKeys: string[],
-  verbose: boolean
+  restoreKeys: string[]
 ): Promise<boolean> {
   core.info(`Restoring SourcePackages...`)
   core.info(`cache key:\n  ${key}`)
   core.info(`restore keys:\n  ${restoreKeys.join('\n')}`)
-  const tar = path.join(tempDirectory, 'SourcePackages.tar')
-  const restoreKey = await cache.restoreCache([tar], key, restoreKeys)
+  const restoreKey = await cache.restoreCache([sourcePackagesDirectory], key, restoreKeys)
   const restored = (restoreKey != undefined)
   if (!restored) {
     core.info('SourcePackages cache not found')
   } else {
     core.info(`Restored cache key:\n  ${restoreKey}`)
     core.saveState('sourcepackages-restorekey', restoreKey)
-    const parent = path.dirname(sourcePackagesDirectory)
-    await fs.mkdir(parent, { recursive: true })
-    let args = ['-xf', tar, '-C', path.dirname(sourcePackagesDirectory)]
-    if (verbose) {
-      args = ['-v', ...args]
-      core.startGroup('Unpack SourcePackages.tar')
-      await exec.exec('tar', ['--version'])
-    }
-    await exec.exec('tar', args)
-    if (verbose) {
-      core.endGroup()
-    }
-    core.info(`SourcePackages has been restored to:\n  ${sourcePackagesDirectory}`)
+    core.info(`Restored to:\n  ${sourcePackagesDirectory}`)
   }
   return restored
 }
