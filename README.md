@@ -1,6 +1,6 @@
 # xcode-cache
 
-A GitHub Action to cache Xcode's Build Cache for incremental build.
+A GitHub Action to store Xcode's Build Cache for incremental build on CI
 
 * This Action caches:
     * `DerivedData`
