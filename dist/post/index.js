@@ -60082,42 +60082,45 @@ async function post() {
         }
         const runnerOs = process.env['RUNNER_OS'];
         if (runnerOs != 'macOS') {
-            throw new Error(`host is not macOS: ${runnerOs}`);
+            throw new Error(`setup-xcode supports only macOS, current host is ${runnerOs}`);
         }
         const input = (0, input_1.getInput)();
-        core.info('> inputs');
+        core.info('Input parameters:');
         Object.entries(input).forEach(([key, value]) => {
-            core.info(`${key}: ${value}`);
+            core.info(`  ${key} = ${value}`);
         });
         core.info('');
         const tempDirectory = path.join(process.env['RUNNER_TEMP'], 'irgaly-xcode-cache');
         const derivedDataDirectory = await input.getDerivedDataDirectory();
         const sourcePackagesDirectory = await input.getSourcePackagesDirectory();
         if (!(0, fs_1.existsSync)(derivedDataDirectory)) {
-            core.warning(`DerivedData directory not found: ${derivedDataDirectory}`);
-            core.warning('skipped to storing mtime');
+            core.warning(`DerivedData directory not found:\n  ${derivedDataDirectory}`);
+            core.warning('Skipped storing mtime');
         }
         else {
             const derivedDataRestoreKey = core.getState('deriveddata-restorekey');
             if (derivedDataRestoreKey == input.key) {
-                core.info(`DerivedData cache has been restored with same key: ${input.key}, not calculating mtime cache`);
+                core.warning(`DerivedData cache has been restored with same key: ${input.key}`);
+                core.warning('Skipped storing mtime');
             }
             else {
                 await storeMtime(derivedDataDirectory, sourcePackagesDirectory, input.restoreMtimeTargets, input.useDefaultMtimeTargets, input.verbose);
             }
         }
+        core.info('');
         if (sourcePackagesDirectory == null) {
-            core.info(`SourcePackages directory not found, skip storing SourcePackages`);
+            core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`);
         }
         else {
             if (!(0, fs_1.existsSync)(sourcePackagesDirectory)) {
-                core.warning(`SourcePackages directory not found: ${sourcePackagesDirectory}`);
-                core.warning('skipped to storing SourcePackages');
+                core.warning(`SourcePackages directory not exists:\n  ${sourcePackagesDirectory}`);
+                core.warning('Skipped storing SourcePackages');
             }
             else {
                 await storeSourcePackages(sourcePackagesDirectory, tempDirectory, await input.getSwiftpmCacheKey(), input.verbose);
             }
         }
+        core.info('');
         await storeDerivedData(await input.getDerivedDataDirectory(), sourcePackagesDirectory, tempDirectory, input.key, input.verbose);
     }
     catch (error) {
@@ -60129,9 +60132,11 @@ async function post() {
 async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, tempDirectory, key, verbose) {
     const restoreKey = core.getState('deriveddata-restorekey');
     if (restoreKey == key) {
-        core.info(`DerivedData cache has been restored with same key: ${key}, not saving cache`);
+        core.info(`DerivedData cache has been restored with same key:\n  ${key}`);
+        core.info('Skipped storing SourcePackages');
     }
     else {
+        core.info(`Storing DerivedData...`);
         const tar = path.join(tempDirectory, 'DerivedData.tar');
         await fs.mkdir(tempDirectory, { recursive: true });
         const parent = path.dirname(derivedDataDirectory);
@@ -60154,17 +60159,19 @@ async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, t
         if (verbose) {
             core.endGroup();
         }
-        core.info(`DerivedData packed: ${tar}`);
+        core.info(`Packed to:\n  ${tar}`);
         await cache.saveCache([tar], key);
-        core.info(`DerivedData cache key: ${key}`);
+        core.info(`Cached with key:\n  ${key}`);
     }
 }
 async function storeSourcePackages(sourcePackagesDirectory, tempDirectory, key, verbose) {
     const restoreKey = core.getState('sourcepackages-restorekey');
     if (restoreKey == key) {
-        core.info(`SourcePackages cache has been restored with same key: ${key}, not saving cache`);
+        core.info(`SourcePackages cache has been restored with same key:\n  ${key}`);
+        core.info('Skipped storing SourcePackages');
     }
     else {
+        core.info(`Storing SourcePackages...`);
         const tar = path.join(tempDirectory, 'SourcePackages.tar');
         await fs.mkdir(tempDirectory, { recursive: true });
         let args = ['--posix', '-cf', tar, '-C', path.dirname(sourcePackagesDirectory), path.basename(sourcePackagesDirectory)];
@@ -60177,10 +60184,10 @@ async function storeSourcePackages(sourcePackagesDirectory, tempDirectory, key, 
         if (verbose) {
             core.endGroup();
         }
-        core.info(`SourcePackages packed: ${tar}`);
+        core.info(`Packed to:\n  ${tar}`);
         try {
             await cache.saveCache([tar], key);
-            core.info(`SourcePackages cache key: ${key}`);
+            core.info(`Cached with key:\n  ${key}`);
         }
         catch (error) {
             // in case cache key conflict,
@@ -60192,6 +60199,7 @@ async function storeSourcePackages(sourcePackagesDirectory, tempDirectory, key, 
     }
 }
 async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restoreMtimeTargets, useDefaultMtimeTarget, verbose) {
+    core.info(`Storing mtime...`);
     let stored = 0;
     const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json');
     const json = [];
@@ -60237,8 +60245,12 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
     if (sourcePackagesDirectory != null) {
         patterns = [...patterns, `!${sourcePackagesDirectory}`];
     }
+    core.info(`Storing to:\n  ${jsonFile}`);
     if (verbose) {
-        core.info(`hash file's glob pattern:\n${patterns.join('\n')}\n`);
+        core.info(`Target glob patterns:`);
+        patterns.forEach(pattern => {
+            core.info(`  ${pattern}`);
+        });
     }
     const cwd = process.cwd();
     const globber = await glob.create(patterns.join('\n'));
@@ -60246,7 +60258,7 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
         return path.relative(cwd, filePath);
     });
     if (verbose) {
-        core.startGroup('Stored files');
+        core.startGroup('Storing mtime');
     }
     for (const path of files) {
         try {
@@ -60260,20 +60272,20 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
                 sha256 = await util.calculateHash(path);
             }
             if (verbose) {
-                core.info(`=> ${mtime} : ${path}`);
+                core.info(`${mtime} : ${path}`);
             }
             json.push({ path: path, time: mtime, sha256: sha256 });
             stored++;
         }
         catch (error) {
-            core.warning(`cannot read file stat: ${path}`);
+            core.warning(`Cannot read file stat: ${path}`);
         }
     }
     if (verbose) {
         core.endGroup();
     }
     await fs.writeFile(jsonFile, JSON.stringify(json));
-    core.info(`Stored ${stored} files : ${jsonFile}`);
+    core.info(`Stored ${stored} file's mtimes`);
 }
 
 
