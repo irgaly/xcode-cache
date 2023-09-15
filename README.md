@@ -1,13 +1,13 @@
 # xcode-cache
 
-A GitHub Action to store Xcode's Build Cache for incremental build on CI
+A GitHub Action to store Xcode's Build Cache for incremental build on CI.
 
-* This Action caches:
+* This action caches:
     * `DerivedData`
-        * This contains Xcode's Build Cache.
+        * That contains Xcode's Build Cache.
     * `SourcePackages`
-        * This contains SwiftPM cloned repositories.
-    * Your source code's `modified time`
+        * That contains SwiftPM cloned repositories.
+    * Your source code's `modified time` (mtime)
 
 # Usage
 
@@ -163,10 +163,12 @@ You can add any target by glob pattern with `restore-mtime-targets` input.
     - uses: irgaly/xcode-cache@v1
       with:
         # Cache key for DerivedData cache
+        #
         # required
         key: { your derived data key }
 
         # Restore keys for DerivedData cache
+        #
         # optional, multiline
         # dofault: empty
         restore-keys: |
@@ -218,7 +220,7 @@ You can add any target by glob pattern with `restore-mtime-targets` input.
         #
         # optional
         # default: true
-        use-default-mtime-targets:
+        use-default-mtime-targets: true
 
         # More detailed logging
         #
