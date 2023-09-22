@@ -158,6 +158,7 @@ async function storeMtime(
     "**/*.storyboard",
     "**/*.strings",
     "**/*.plist",
+    "**/*.json",
     "**/*.xcassets",
     "**/*.bundle",
     "**/*.bundle/**/*",
