@@ -230,4 +230,14 @@ You can add any target by glob pattern with `restore-mtime-targets` input.
 
 ```
 
+# Appendix
 
+## Ruby one-liner for restoring mtimes
+
+This is a ruby one-liner for restoring mtimes from `xcode-cache-mtime.json`.
+You may use this one-liner if you'd like to restore at any time you want in GitHub Actions workflow
+step.
+
+```shell
+% ruby -rjson -rdigest -rbigdecimal -e 'JSON.parse(STDIN.read).each{|i|f=i["path"];t=BigDecimal(i["time"]);File.utime(t,t,f)if(File.exist?(f)&&(File.directory?(f)?Digest::SHA256.new.yield_self{|s|Dir.children(f).sort.each{s.update(_1)};s.hexdigest}:Digest::SHA256.file(f).hexdigest)==i["sha256"])}' < DerivedData/xcode-cache-mtime.json
+```
