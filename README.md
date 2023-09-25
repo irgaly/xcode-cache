@@ -147,6 +147,10 @@ this action will store these file's mtime attributes:
 * `**/*.bundle/**/*`
 * `**/*.xcdatamodel`
 * `**/*.xcdatamodel/**/*`
+* `**/*.framework`,
+* `**/*.framework/**/*`,
+* `**/*.xcframework`,
+* `**/*.xcframework/**/*`,
 * `**/*.m`
 * `**/*.mm`
 * `**/*.h`
