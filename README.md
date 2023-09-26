@@ -141,11 +141,16 @@ this action will store these file's mtime attributes:
 * `**/*.storyboard`
 * `**/*.strings`
 * `**/*.plist`
+* `**/*.json`
 * `**/*.xcassets`
 * `**/*.bundle`
 * `**/*.bundle/**/*`
 * `**/*.xcdatamodel`
 * `**/*.xcdatamodel/**/*`
+* `**/*.framework`,
+* `**/*.framework/**/*`,
+* `**/*.xcframework`,
+* `**/*.xcframework/**/*`,
 * `**/*.m`
 * `**/*.mm`
 * `**/*.h`
