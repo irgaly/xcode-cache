@@ -141,6 +141,7 @@ this action will store these file's mtime attributes:
 * `**/*.storyboard`
 * `**/*.strings`
 * `**/*.plist`
+* `**/*.intentdefinition`
 * `**/*.json`
 * `**/*.xcassets`
 * `**/*.bundle`
