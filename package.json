@@ -1,6 +1,6 @@
 {
   "name": "xcode-cache",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "main": "dist/main/index.js",
   "private": true,
   "license": "Apache-2.0",
