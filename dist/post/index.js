@@ -60197,6 +60197,7 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
         "**/*.intentdefinition",
         "**/*.json",
         "**/*.xcassets",
+        "**/*.xcassets/**/*",
         "**/*.bundle",
         "**/*.bundle/**/*",
         "**/*.xcdatamodel",
