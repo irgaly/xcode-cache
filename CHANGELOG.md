@@ -1,3 +1,9 @@
+# v1.3.0 - 2023/09/29 JST
+
+#### Improve
+
+* Add default targets: `**/*.xcassets/**/*` [#37](https://github.com/irgaly/xcode-cache/pull/37)
+
 # v1.2.0 - 2023/09/28 JST
 
 #### Improve
