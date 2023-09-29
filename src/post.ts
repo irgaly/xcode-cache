@@ -161,6 +161,7 @@ async function storeMtime(
     "**/*.intentdefinition",
     "**/*.json",
     "**/*.xcassets",
+    "**/*.xcassets/**/*",
     "**/*.bundle",
     "**/*.bundle/**/*",
     "**/*.xcdatamodel",

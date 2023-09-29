@@ -144,6 +144,7 @@ this action will store these file's mtime attributes:
 * `**/*.intentdefinition`
 * `**/*.json`
 * `**/*.xcassets`
+* `**/*.xcassets/**/*`
 * `**/*.bundle`
 * `**/*.bundle/**/*`
 * `**/*.xcdatamodel`
