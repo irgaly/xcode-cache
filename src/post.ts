@@ -92,7 +92,8 @@ async function storeDerivedData(
     core.info(`DerivedData cache has been restored with same key:\n  ${key}`)
     core.info('Skipped storing SourcePackages')
   } else {
-    core.info(`Storing DerivedData...`)
+    const begin = new Date()
+    core.info(`[${util.getHHmmss(begin)}]: Storing DerivedData...`)
     core.info(`Cache path:\n  ${derivedDataDirectory}`)
     if (sourcePackagesDirectory != null) {
       if (
@@ -114,6 +115,8 @@ async function storeDerivedData(
         await fs.rename(backup, sourcePackagesDirectory)
       }
     }
+    const end = new Date()
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
   }
 }
 
@@ -126,7 +129,8 @@ async function storeSourcePackages(
     core.info(`SourcePackages cache has been restored with same key:\n  ${key}`)
     core.info('Skipped storing SourcePackages')
   } else {
-    core.info(`Storing SourcePackages...`)
+    const begin = new Date()
+    core.info(`[${util.getHHmmss(begin)}]: Storing SourcePackages...`)
     core.info(`Cache path:\n  ${sourcePackagesDirectory}`)
     try {
       await cache.saveCache([sourcePackagesDirectory], key)
@@ -138,6 +142,8 @@ async function storeSourcePackages(
       // then logging warning and treat as success.
       core.warning(`SourcePackages cache key exists, not saved: ${error}`)
     }
+    const end = new Date()
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
   }
 }
 
@@ -148,7 +154,8 @@ async function storeMtime(
   useDefaultMtimeTarget: boolean,
   verbose: boolean
 ) {
-  core.info(`Storing mtime...`)
+  const begin = new Date()
+  core.info(`[${util.getHHmmss(begin)}]: Storing mtime...`)
   let stored = 0
   const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json')
   const json: MtimeJson[] = []
@@ -240,4 +247,6 @@ async function storeMtime(
   }
   await fs.writeFile(jsonFile, JSON.stringify(json))
   core.info(`Stored ${stored} file's mtimes`)
+  const end = new Date()
+  core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
 }
