@@ -1,3 +1,9 @@
+# v1.4.0 - 2023/10/05 JST
+
+#### Improve
+
+* add set-output restored / swiftpm-restored [#39](https://github.com/irgaly/xcode-cache/pull/39)
+
 # v1.3.0 - 2023/09/29 JST
 
 #### Improve
