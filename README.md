@@ -234,8 +234,20 @@ You can add any target by glob pattern with `restore-mtime-targets` input.
         # optional
         # default: false
         verbose: false
-
 ```
+
+# Outputs
+
+This action
+provides
+some [step outputs](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter).
+
+For example, you can use these values by `${{ steps.{step id}.outputs.restored }}`
+
+| key                | value                                                                                                                        |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `restored`         | `true`: DerivedData restored from cache (includes restore-keys hit) / `false`: DerivedData cache not hit                     |
+| `swiftpm-restored` | `true`: SourcePackages restored from cache (includes swiftpm-cache-restore-keys hit) / `false`: SourcePackages cache not hit |
 
 # Appendix
 
