@@ -9,12 +9,34 @@ import * as crypto from 'crypto'
 import { pipeline } from 'stream/promises'
 
 /**
+ * Get 'HH:mm:ss' formatted string
+ */
+export function getHHmmss(
+  date: Date
+): string {
+  const hours = ('0' + date.getHours()).slice(-2)
+  const minutes = ('0' + date.getMinutes()).slice(-2)
+  const seconds = ('0' + date.getSeconds()).slice(-2)
+  return `${hours}:${minutes}:${seconds}`
+}
+
+/**
+ * Get elapsed seconds as string: "0.00"
+ */
+export function elapsed(
+  begin: Date,
+  end: Date
+): string {
+  return  ((end.getTime() - begin.getTime()) / 1000).toFixed(3)
+}
+
+/**
  * BigInt to time string "1694535491.104939637"
  */
 export function getTimeString(
   value: BigInt
 ): string {
-  let str = value.toString()
+  const str = value.toString()
   return `${str.slice(0, str.length - 9)}.${str.slice(str.length - 9)}`
 }
 

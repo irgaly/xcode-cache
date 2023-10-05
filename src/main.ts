@@ -74,7 +74,8 @@ async function restoreDerivedData(
   key: string,
   restoreKeys: string[]
 ): Promise<boolean> {
-  core.info(`Restoring DerivedData...`)
+  const begin = new Date()
+  core.info(`[${util.getHHmmss(begin)}]: Restoring DerivedData...`)
   core.info(`cache key:\n  ${key}`)
   core.info(`restore keys:\n  ${restoreKeys.join('\n')}`)
   const restoreKey = await cache.restoreCache([derivedDataDirectory], key, restoreKeys)
@@ -86,6 +87,8 @@ async function restoreDerivedData(
     core.saveState('deriveddata-restorekey', restoreKey)
     core.info(`Restored to:\n  ${derivedDataDirectory}`)
   }
+  const end = new Date()
+  core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
   return restored
 }
 
@@ -94,7 +97,8 @@ async function restoreSourcePackages(
   key: string,
   restoreKeys: string[]
 ): Promise<boolean> {
-  core.info(`Restoring SourcePackages...`)
+  const begin = new Date()
+  core.info(`[${util.getHHmmss(begin)}]: Restoring SourcePackages...`)
   core.info(`cache key:\n  ${key}`)
   core.info(`restore keys:\n  ${restoreKeys.join('\n')}`)
   const restoreKey = await cache.restoreCache([sourcePackagesDirectory], key, restoreKeys)
@@ -106,6 +110,8 @@ async function restoreSourcePackages(
     core.saveState('sourcepackages-restorekey', restoreKey)
     core.info(`Restored to:\n  ${sourcePackagesDirectory}`)
   }
+  const end = new Date()
+  core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
   return restored
 }
 
@@ -114,7 +120,8 @@ async function restoreMtime(
   restoreMtimeTargets: string[],
   verbose: boolean
 ) {
-  core.info(`Restoring mtime...`)
+  const begin = new Date()
+  core.info(`[${util.getHHmmss(begin)}]: Restoring mtime...`)
   let changed = 0
   let skipped: string[] = []
   const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json')
@@ -178,5 +185,7 @@ async function restoreMtime(
       }
     }
     core.info(`Restored ${changed} file's mtimes.`)
+    const end = new Date()
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
   }
 }
