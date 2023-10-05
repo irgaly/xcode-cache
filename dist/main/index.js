@@ -60120,7 +60120,8 @@ async function main() {
     }
 }
 async function restoreDerivedData(derivedDataDirectory, key, restoreKeys) {
-    core.info(`Restoring DerivedData...`);
+    const begin = new Date();
+    core.info(`[${util.getHHmmss(begin)}]: Restoring DerivedData...`);
     core.info(`cache key:\n  ${key}`);
     core.info(`restore keys:\n  ${restoreKeys.join('\n')}`);
     const restoreKey = await cache.restoreCache([derivedDataDirectory], key, restoreKeys);
@@ -60133,10 +60134,13 @@ async function restoreDerivedData(derivedDataDirectory, key, restoreKeys) {
         core.saveState('deriveddata-restorekey', restoreKey);
         core.info(`Restored to:\n  ${derivedDataDirectory}`);
     }
+    const end = new Date();
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
     return restored;
 }
 async function restoreSourcePackages(sourcePackagesDirectory, key, restoreKeys) {
-    core.info(`Restoring SourcePackages...`);
+    const begin = new Date();
+    core.info(`[${util.getHHmmss(begin)}]: Restoring SourcePackages...`);
     core.info(`cache key:\n  ${key}`);
     core.info(`restore keys:\n  ${restoreKeys.join('\n')}`);
     const restoreKey = await cache.restoreCache([sourcePackagesDirectory], key, restoreKeys);
@@ -60149,10 +60153,13 @@ async function restoreSourcePackages(sourcePackagesDirectory, key, restoreKeys) 
         core.saveState('sourcepackages-restorekey', restoreKey);
         core.info(`Restored to:\n  ${sourcePackagesDirectory}`);
     }
+    const end = new Date();
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
     return restored;
 }
 async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) {
-    core.info(`Restoring mtime...`);
+    const begin = new Date();
+    core.info(`[${util.getHHmmss(begin)}]: Restoring mtime...`);
     let changed = 0;
     let skipped = [];
     const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json');
@@ -60221,6 +60228,8 @@ async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) 
             }
         }
         core.info(`Restored ${changed} file's mtimes.`);
+        const end = new Date();
+        core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
     }
 }
 
@@ -60256,7 +60265,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fakeCache = exports.execute = exports.pathContains = exports.calculateDirectoryHash = exports.calculateHash = exports.getTimeString = void 0;
+exports.fakeCache = exports.execute = exports.pathContains = exports.calculateDirectoryHash = exports.calculateHash = exports.getTimeString = exports.elapsed = exports.getHHmmss = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(3292));
 const fs_1 = __nccwpck_require__(7147);
@@ -60266,10 +60275,27 @@ const exec = __importStar(__nccwpck_require__(1514));
 const crypto = __importStar(__nccwpck_require__(6113));
 const promises_1 = __nccwpck_require__(4845);
 /**
+ * Get 'HH:mm:ss' formatted string
+ */
+function getHHmmss(date) {
+    const hours = ('0' + date.getHours()).slice(-2);
+    const minutes = ('0' + date.getMinutes()).slice(-2);
+    const seconds = ('0' + date.getSeconds()).slice(-2);
+    return `${hours}:${minutes}:${seconds}`;
+}
+exports.getHHmmss = getHHmmss;
+/**
+ * Get elapsed seconds as string: "0.00"
+ */
+function elapsed(begin, end) {
+    return ((end.getTime() - begin.getTime()) / 1000).toFixed(3);
+}
+exports.elapsed = elapsed;
+/**
  * BigInt to time string "1694535491.104939637"
  */
 function getTimeString(value) {
-    let str = value.toString();
+    const str = value.toString();
     return `${str.slice(0, str.length - 9)}.${str.slice(str.length - 9)}`;
 }
 exports.getTimeString = getTimeString;

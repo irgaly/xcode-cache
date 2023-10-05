@@ -60139,7 +60139,8 @@ async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, t
         core.info('Skipped storing SourcePackages');
     }
     else {
-        core.info(`Storing DerivedData...`);
+        const begin = new Date();
+        core.info(`[${util.getHHmmss(begin)}]: Storing DerivedData...`);
         core.info(`Cache path:\n  ${derivedDataDirectory}`);
         if (sourcePackagesDirectory != null) {
             if (util.pathContains(derivedDataDirectory, sourcePackagesDirectory) &&
@@ -60159,6 +60160,8 @@ async function storeDerivedData(derivedDataDirectory, sourcePackagesDirectory, t
                 await fs.rename(backup, sourcePackagesDirectory);
             }
         }
+        const end = new Date();
+        core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
     }
 }
 async function storeSourcePackages(sourcePackagesDirectory, key) {
@@ -60168,7 +60171,8 @@ async function storeSourcePackages(sourcePackagesDirectory, key) {
         core.info('Skipped storing SourcePackages');
     }
     else {
-        core.info(`Storing SourcePackages...`);
+        const begin = new Date();
+        core.info(`[${util.getHHmmss(begin)}]: Storing SourcePackages...`);
         core.info(`Cache path:\n  ${sourcePackagesDirectory}`);
         try {
             await cache.saveCache([sourcePackagesDirectory], key);
@@ -60181,10 +60185,13 @@ async function storeSourcePackages(sourcePackagesDirectory, key) {
             // then logging warning and treat as success.
             core.warning(`SourcePackages cache key exists, not saved: ${error}`);
         }
+        const end = new Date();
+        core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
     }
 }
 async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restoreMtimeTargets, useDefaultMtimeTarget, verbose) {
-    core.info(`Storing mtime...`);
+    const begin = new Date();
+    core.info(`[${util.getHHmmss(begin)}]: Storing mtime...`);
     let stored = 0;
     const jsonFile = path.join(derivedDataDirectory, 'xcode-cache-mtime.json');
     const json = [];
@@ -60279,6 +60286,8 @@ async function storeMtime(derivedDataDirectory, sourcePackagesDirectory, restore
     }
     await fs.writeFile(jsonFile, JSON.stringify(json));
     core.info(`Stored ${stored} file's mtimes`);
+    const end = new Date();
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
 }
 
 
@@ -60313,7 +60322,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fakeCache = exports.execute = exports.pathContains = exports.calculateDirectoryHash = exports.calculateHash = exports.getTimeString = void 0;
+exports.fakeCache = exports.execute = exports.pathContains = exports.calculateDirectoryHash = exports.calculateHash = exports.getTimeString = exports.elapsed = exports.getHHmmss = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(3292));
 const fs_1 = __nccwpck_require__(7147);
@@ -60323,10 +60332,27 @@ const exec = __importStar(__nccwpck_require__(1514));
 const crypto = __importStar(__nccwpck_require__(6113));
 const promises_1 = __nccwpck_require__(4845);
 /**
+ * Get 'HH:mm:ss' formatted string
+ */
+function getHHmmss(date) {
+    const hours = ('0' + date.getHours()).slice(-2);
+    const minutes = ('0' + date.getMinutes()).slice(-2);
+    const seconds = ('0' + date.getSeconds()).slice(-2);
+    return `${hours}:${minutes}:${seconds}`;
+}
+exports.getHHmmss = getHHmmss;
+/**
+ * Get elapsed seconds as string: "0.00"
+ */
+function elapsed(begin, end) {
+    return ((end.getTime() - begin.getTime()) / 1000).toFixed(3);
+}
+exports.elapsed = elapsed;
+/**
  * BigInt to time string "1694535491.104939637"
  */
 function getTimeString(value) {
-    let str = value.toString();
+    const str = value.toString();
     return `${str.slice(0, str.length - 9)}.${str.slice(str.length - 9)}`;
 }
 exports.getTimeString = getTimeString;
