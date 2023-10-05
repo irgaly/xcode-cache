@@ -60093,11 +60093,12 @@ async function main() {
         const derivedDataRestored = await restoreDerivedData(derivedDataDirectory, input.key, input.restoreKeys);
         core.info('');
         const sourcePackagesDirectory = await input.getSourcePackagesDirectory();
+        let sourcePackagesRestored = false;
         if (sourcePackagesDirectory == null) {
             core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`);
         }
         else {
-            await restoreSourcePackages(sourcePackagesDirectory, await input.getSwiftpmCacheKey(), input.swiftpmCacheRestoreKeys);
+            sourcePackagesRestored = await restoreSourcePackages(sourcePackagesDirectory, await input.getSwiftpmCacheKey(), input.swiftpmCacheRestoreKeys);
         }
         core.info('');
         if (!derivedDataRestored) {
@@ -60106,6 +60107,11 @@ async function main() {
         else {
             await restoreMtime(derivedDataDirectory, input.restoreMtimeTargets, input.verbose);
         }
+        core.info('');
+        core.info(`set-output: restored = ${derivedDataRestored}`);
+        core.setOutput('restored', derivedDataRestored.toString());
+        core.info(`set-output: swiftpm-restored = ${sourcePackagesRestored}`);
+        core.setOutput('swiftpm-restored', sourcePackagesRestored.toString());
     }
     catch (error) {
         if (error instanceof Error) {
