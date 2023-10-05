@@ -1,3 +1,9 @@
+# v1.5.0 - 2023/10/05 JST
+
+#### Improve
+
+* add timestamp to logging [#41](https://github.com/irgaly/xcode-cache/pull/41)
+
 # v1.4.0 - 2023/10/05 JST
 
 #### Improve
