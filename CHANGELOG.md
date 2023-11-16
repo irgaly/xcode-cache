@@ -1,3 +1,10 @@
+# v1.6.0 - 2023/11/16 JST
+
+#### Improve
+
+* add node-v93-darwin-arm64/nanoutimes.node [#44](https://github.com/irgaly/xcode-cache/pull/44)
+    * Support GitHub Actions M1 Mac (macos-13-xlarge)
+
 # v1.5.0 - 2023/10/05 JST
 
 #### Improve
