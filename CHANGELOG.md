@@ -1,3 +1,9 @@
+# v1.7.1 - 2023/12/1 JST
+
+#### Fix
+
+* Fix deleting cache API's 404 error handling [#50](https://github.com/irgaly/xcode-cache/pull/50)
+
 # v1.7.0 - 2023/12/1 JST
 
 #### Improve
