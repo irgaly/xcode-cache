@@ -60090,15 +60090,18 @@ async function main() {
         });
         core.info('');
         const derivedDataDirectory = await input.getDerivedDataDirectory();
-        const derivedDataRestored = await restoreDerivedData(derivedDataDirectory, input.key, input.restoreKeys);
+        const derivedDataRestoredKey = await restoreDerivedData(derivedDataDirectory, input.key, input.restoreKeys);
+        const derivedDataRestored = (derivedDataRestoredKey != undefined);
         core.info('');
         const sourcePackagesDirectory = await input.getSourcePackagesDirectory();
+        let sourcePackagesRestoredKey = undefined;
         let sourcePackagesRestored = false;
         if (sourcePackagesDirectory == null) {
             core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`);
         }
         else {
-            sourcePackagesRestored = await restoreSourcePackages(sourcePackagesDirectory, await input.getSwiftpmCacheKey(), input.swiftpmCacheRestoreKeys);
+            sourcePackagesRestoredKey = await restoreSourcePackages(sourcePackagesDirectory, await input.getSwiftpmCacheKey(), input.swiftpmCacheRestoreKeys);
+            sourcePackagesRestored = (sourcePackagesRestoredKey != undefined);
         }
         core.info('');
         if (!derivedDataRestored) {
@@ -60110,8 +60113,22 @@ async function main() {
         core.info('');
         core.info(`set-output: restored = ${derivedDataRestored}`);
         core.setOutput('restored', derivedDataRestored.toString());
+        if (derivedDataRestored) {
+            core.info(`set-output: restored-key = ${derivedDataRestoredKey}`);
+            core.setOutput('restored-key', derivedDataRestoredKey);
+        }
+        else {
+            core.info(`restored-key will not set`);
+        }
         core.info(`set-output: swiftpm-restored = ${sourcePackagesRestored}`);
         core.setOutput('swiftpm-restored', sourcePackagesRestored.toString());
+        if (sourcePackagesRestored) {
+            core.info(`set-output: swiftpm-restored-key = ${sourcePackagesRestoredKey}`);
+            core.setOutput('swiftpm-restored-key', sourcePackagesRestoredKey);
+        }
+        else {
+            core.info(`swiftpm-restored-key will not set`);
+        }
     }
     catch (error) {
         if (error instanceof Error) {
@@ -60136,7 +60153,7 @@ async function restoreDerivedData(derivedDataDirectory, key, restoreKeys) {
     }
     const end = new Date();
     core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
-    return restored;
+    return restoreKey;
 }
 async function restoreSourcePackages(sourcePackagesDirectory, key, restoreKeys) {
     const begin = new Date();
@@ -60155,7 +60172,7 @@ async function restoreSourcePackages(sourcePackagesDirectory, key, restoreKeys) 
     }
     const end = new Date();
     core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`);
-    return restored;
+    return restoreKey;
 }
 async function restoreMtime(derivedDataDirectory, restoreMtimeTargets, verbose) {
     const begin = new Date();
