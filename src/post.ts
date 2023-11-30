@@ -90,7 +90,7 @@ async function storeDerivedData(
   const restoreKey = core.getState('deriveddata-restorekey')
   if (restoreKey == key) {
     core.info(`DerivedData cache has been restored with same key:\n  ${key}`)
-    core.info('Skipped storing SourcePackages')
+    core.info('Skipped storing DerivedData')
   } else {
     const begin = new Date()
     core.info(`[${util.getHHmmss(begin)}]: Storing DerivedData...`)
