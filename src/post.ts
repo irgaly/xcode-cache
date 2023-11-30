@@ -116,13 +116,20 @@ async function deleteUsedDerivedDataCache(
         ref: github.context.ref
       })
       core.info(`DELETE cache API Result:\n${JSON.stringify(result, null, '  ')}`)
-    } catch (error) {
-      core.error('Error when deleting old DerivedData cache:')
-      core.error('Please be sure actions:write permission is granted for your token.')
-      core.error('See API Docs: https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key')
-      core.error('See GitHub Actions Permissions: https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs')
-      core.error(`${JSON.stringify(error, null, '  ')}`)
-      throw error
+    } catch (error: any) {
+      if (error.status == 404) {
+        core.info('API returns "Cache is Not Found" response.')
+        core.info('This occurs when Cache belongs to other branch.')
+        core.info(`This is expected behavior and treat it as success, if this job is the first build of "${github.context.ref}" branch.`)
+        core.info(`DELETE cache API Result:\n${JSON.stringify(error, null, '  ')}`)
+      } else {
+        core.error('Error when deleting old DerivedData cache:')
+        core.error('Please be sure actions:write permission is granted for your token.')
+        core.error('See API Docs: https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key')
+        core.error('See GitHub Actions Permissions: https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs')
+        core.error(`${JSON.stringify(error, null, '  ')}`)
+        throw error
+      }
     }
     const end = new Date()
     core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)

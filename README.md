@@ -246,7 +246,9 @@ Please see the official document of GitHub Actions Cache management for more det
         use-default-mtime-targets: true
 
         # Delete the DerivedData cache that used for this build,
-        # only when this job has succeeded and the cache has hit from `restore-keys`.
+        # only when this job has succeeded, the cache has hit from `restore-keys` and
+        # the Cache belongs to same branch from this job.
+        #
         # Cache will be deleted by GitHub Actions API
         # https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key
         #
