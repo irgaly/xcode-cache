@@ -1,3 +1,12 @@
+# v1.7.0 - 2023/12/1 JST
+
+#### Improve
+
+* add output: restored-key,
+  swiftpm-restored-key [#46](https://github.com/irgaly/xcode-cache/pull/46)
+* add node-v120-darwin-arm64/nanoutimes.node [#47](https://github.com/irgaly/xcode-cache/pull/47)
+* add delete-used-deriveddata-cache feature [#48](https://github.com/irgaly/xcode-cache/pull/48)
+
 # v1.6.0 - 2023/11/16 JST
 
 #### Improve
