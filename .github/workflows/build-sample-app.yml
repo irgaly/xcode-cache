@@ -3,6 +3,9 @@ name: Build Sample Xcode iOS Application for demonstration
 on:
   push:
 
+permissions:
+  actions: write
+
 jobs:
   build-sample-app:
     runs-on: macos-latest
