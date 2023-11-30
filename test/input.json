@@ -1,9 +1,13 @@
 {
   "RUNNER_OS": "macOS",
   "RUNNER_TEMP": "./tmp",
+  "GITHUB_REPOSITORY": "dummy_owner/dummy_repository",
+  "STATE_deriveddata-restorekey": "dummy_restore_key",
   "INPUT_KEY": "xcode-deriveddata-{workflow}-{sha}",
   "INPUT_DERIVEDDATA-DIRECTORY": "./sample/MyApp/DerivedData",
   "INPUT_SOURCEPACKAGES-DIRECTORY": "./sample/MyApp/SourcePackages",
   "INPUT_USE-DEFAULT-MTIME-TARGETS": "true",
+  "INPUT_DELETE-USED-DERIVEDDATA-CACHE": "false",
+  "INPUT_TOKEN": "dummy_github_token",
   "INPUT_VERBOSE": "true"
 }

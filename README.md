@@ -164,6 +164,20 @@ this action will store these file's mtime attributes:
 
 You can add any target by glob pattern with `restore-mtime-targets` input.
 
+# Delete old incremental build cache when job succeeded
+
+If `delete-used-deriveddata-cache: true` is configured, xcode-cache will delete old DerivedData
+cache from GitHub Actions Cache Storage.
+This will help you to manage your repository's Cache Storage space.
+
+This operation will use GitHub Actions API for deleting cache.
+
+* [REST API | GitHub Actions Cache](https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key)
+
+Please see the official document of GitHub Actions Cache management for more details.
+
+* [GitHub Docs | Caching dependencies to speed up workflows | Force deleting cache entries](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#force-deleting-cache-entries)
+
 # All Options
 
 ```yaml
@@ -228,6 +242,22 @@ You can add any target by glob pattern with `restore-mtime-targets` input.
         # optional
         # default: true
         use-default-mtime-targets: true
+
+        # Delete the DerivedData cache that used for this build,
+        # only when this job has succeeded and the cache has hit from `restore-keys`.
+        # Cache will be deleted by GitHub Actions API
+        # https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key
+        #
+        # optional
+        # default: false
+        delete-used-deriveddata-cache: false
+
+        # The GitHub Token for deleting DerivedData cache
+        # This is used to access GitHub Actions Cache API
+        #
+        # optional
+        # default: ${{ github.token }}
+        token: ${{ github.token }}
 
         # More detailed logging
         #
