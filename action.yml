@@ -40,6 +40,14 @@ inputs:
     description: 'process default mtime targets: **/*.swift , **/*.xib , **/*.storyboard , **/*.strings , **/*.plist , **/*.xcassets , **/*.xcassets/**/* , **/*.bundle , **/*.bundle/**/*, **/*.xcdatamodel , **/*.xcdatamodel/**/* , **/*.framework , **/*.framework/**/* , **/*.xcframework , **/*.xcframework/**/* , **/*.m , **/*.mm , **/*.h , **/*.c , **/*.cc , **/*.cpp , **/*.hpp , **/*.hxx'
     required: false
     default: 'true'
+  delete-used-deriveddata-cache:
+    description: 'delete the DerivedData cache used for this job, when job has succeeded.'
+    required: false
+    default: 'false'
+  token:
+    description: 'an GitHub Token for deleting the DerivedData operation. default: github.token'
+    required: false
+    default: ${{ github.token }}
   verbose:
     description: 'enable verbose logging'
     required: false

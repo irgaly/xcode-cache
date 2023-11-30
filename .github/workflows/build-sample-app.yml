@@ -3,6 +3,9 @@ name: Build Sample Xcode iOS Application for demonstration
 on:
   push:
 
+permissions:
+  actions: write
+
 jobs:
   build-sample-app:
     runs-on: macos-latest
@@ -18,6 +21,7 @@ jobs:
         with:
           key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
           restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
+          delete-used-deriveddata-cache: true
           verbose: true
       - run: gem install fastlane
       - shell: bash -xeu {0}

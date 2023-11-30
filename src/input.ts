@@ -16,6 +16,8 @@ class Input {
     public swiftpmCacheKey: string | null,
     public swiftpmCacheRestoreKeys: string[],
     public useDefaultMtimeTargets: boolean,
+    public deleteUsedDerivedDataCache: boolean,
+    public token: string,
     public verbose: boolean
   ) {}
 
@@ -85,6 +87,8 @@ export function getInput(): Input {
     getInputOrNull('swiftpm-cache-key'),
     core.getMultilineInput('swiftpm-cache-restore-keys'),
     core.getBooleanInput('use-default-mtime-targets'),
+    core.getBooleanInput('delete-used-deriveddata-cache'),
+    core.getInput('token'),
     core.getBooleanInput('verbose')
   )
 }

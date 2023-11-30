@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as cache from '@actions/cache'
 import * as glob from '@actions/glob'
 import * as exec from '@actions/exec'
+import * as github from '@actions/github'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 import * as os from 'os'
@@ -17,6 +18,7 @@ async function post() {
     const debugLocal = await debugLocalInput()
     if (debugLocal) {
       util.fakeCache(cache)
+      util.fakeOctokit(github)
     }
     const runnerOs = process.env['RUNNER_OS']
     if (runnerOs != 'macOS') {
@@ -64,6 +66,15 @@ async function post() {
       }
     }
     core.info('')
+    if (input.deleteUsedDerivedDataCache) {
+      await deleteUsedDerivedDataCache(
+        input.key,
+        input.token
+      )
+    } else {
+      core.info('Skipped deleting old DerivedData cache')
+    }
+    core.info('')
     await storeDerivedData(
       await input.getDerivedDataDirectory(),
       sourcePackagesDirectory,
@@ -81,6 +92,43 @@ async function post() {
   }
 }
 
+async function deleteUsedDerivedDataCache(
+  key: string,
+  token: string
+) {
+  const restoreKey = core.getState('deriveddata-restorekey')
+  if (restoreKey == '') {
+    core.info(`DerivedData cache has not been restored.`)
+    core.info('Skipped deleting old DerivedData cache')
+  } else if (restoreKey == key) {
+    core.info(`DerivedData cache has been restored with same key:\n  ${key}`)
+    core.info('Skipped deleting old DerivedData cache')
+  } else {
+    const begin = new Date()
+    core.info(`[${util.getHHmmss(begin)}]: Deleting old DerivedData cache...`)
+    core.info(`Cache key:\n  ${restoreKey}`)
+    const octokit = github.getOctokit(token)
+    try {
+      const result = await octokit.request('DELETE /repos/{owner}/{repo}/actions/caches{?key,ref}', {
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        key: restoreKey,
+        ref: github.context.ref
+      })
+      core.info(`DELETE cache API Result:\n${JSON.stringify(result, null, '  ')}`)
+    } catch (error) {
+      core.error('Error when deleting old DerivedData cache:')
+      core.error('Please be sure actions:write permission is granted for your token.')
+      core.error('See API Docs: https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key')
+      core.error('See GitHub Actions Permissions: https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs')
+      core.error(`${JSON.stringify(error, null, '  ')}`)
+      throw error
+    }
+    const end = new Date()
+    core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
+  }
+}
+
 async function storeDerivedData(
   derivedDataDirectory: string,
   sourcePackagesDirectory: string | null,
@@ -90,7 +138,7 @@ async function storeDerivedData(
   const restoreKey = core.getState('deriveddata-restorekey')
   if (restoreKey == key) {
     core.info(`DerivedData cache has been restored with same key:\n  ${key}`)
-    core.info('Skipped storing SourcePackages')
+    core.info('Skipped storing DerivedData')
   } else {
     const begin = new Date()
     core.info(`[${util.getHHmmss(begin)}]: Storing DerivedData...`)

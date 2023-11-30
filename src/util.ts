@@ -119,3 +119,19 @@ export async function fakeCache(
     }
   })
 }
+
+export async function fakeOctokit(
+  github: any
+) {
+  Object.assign(github, {
+    getOctokit: (token: string): any => {
+      return {
+        request: (route: string, options: any) => {
+          core.info(`Debug: octokit.request:`)
+          core.info(`Debug:   route: ${route}`)
+          core.info(`Debug:   options: ${JSON.stringify(options)}`)
+        }
+      }
+    }
+  })
+}
