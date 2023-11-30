@@ -244,10 +244,12 @@ some [step outputs](https://docs.github.com/en/actions/using-workflows/workflow-
 
 For example, you can use these values by `${{ steps.{step id}.outputs.restored }}`
 
-| key                | value                                                                                                                        |
-|--------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `restored`         | `true`: DerivedData restored from cache (includes restore-keys hit) / `false`: DerivedData cache not hit                     |
-| `swiftpm-restored` | `true`: SourcePackages restored from cache (includes swiftpm-cache-restore-keys hit) / `false`: SourcePackages cache not hit |
+| key                    | value                                                                                                                        |
+|------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `restored`             | `true`: DerivedData restored from cache (includes restore-keys hit) / `false`: DerivedData cache not hit                     |
+| `restored-key`         | The key of DerivedData cache hit. This will not set when cache has not hit.                                                  |
+| `swiftpm-restored`     | `true`: SourcePackages restored from cache (includes swiftpm-cache-restore-keys hit) / `false`: SourcePackages cache not hit |
+| `swiftpm-restored-key` | The key of SourcePackages cache hit. This will not set when cache has not hit.                                               |
 
 # Appendix
 
