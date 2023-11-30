@@ -171,8 +171,10 @@ cache from GitHub Actions Cache Storage.
 This will help you to manage your repository's Cache Storage space.
 
 This operation will use GitHub Actions API for deleting cache.
+**Be sure `actions: write` has granted to your token.**
 
 * [REST API | GitHub Actions Cache](https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key)
+* [GitHub Actions | Assigning permissions to jobs](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
 
 Please see the official document of GitHub Actions Cache management for more details.
 
