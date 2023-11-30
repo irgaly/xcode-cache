@@ -30,22 +30,25 @@ async function main() {
     })
     core.info('')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
-    const derivedDataRestored = await restoreDerivedData(
+    const derivedDataRestoredKey = await restoreDerivedData(
       derivedDataDirectory,
       input.key,
       input.restoreKeys
     )
+    const derivedDataRestored = (derivedDataRestoredKey != undefined)
     core.info('')
     const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
+    let sourcePackagesRestoredKey: string | undefined = undefined
     let sourcePackagesRestored = false
     if (sourcePackagesDirectory == null) {
       core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`)
     } else {
-      sourcePackagesRestored = await restoreSourcePackages(
+      sourcePackagesRestoredKey = await restoreSourcePackages(
         sourcePackagesDirectory,
         await input.getSwiftpmCacheKey(),
         input.swiftpmCacheRestoreKeys
       )
+      sourcePackagesRestored = (sourcePackagesRestoredKey != undefined)
     }
     core.info('')
     if (!derivedDataRestored) {
@@ -60,8 +63,20 @@ async function main() {
     core.info('')
     core.info(`set-output: restored = ${derivedDataRestored}`)
     core.setOutput('restored', derivedDataRestored.toString());
+    if (derivedDataRestored) {
+      core.info(`set-output: restored-key = ${derivedDataRestoredKey}`)
+      core.setOutput('restored-key', derivedDataRestoredKey);
+    } else {
+      core.info(`restored-key will not set`)
+    }
     core.info(`set-output: swiftpm-restored = ${sourcePackagesRestored}`)
     core.setOutput('swiftpm-restored', sourcePackagesRestored.toString());
+    if (sourcePackagesRestored) {
+      core.info(`set-output: swiftpm-restored-key = ${sourcePackagesRestoredKey}`)
+      core.setOutput('swiftpm-restored-key', sourcePackagesRestoredKey);
+    } else {
+      core.info(`swiftpm-restored-key will not set`)
+    }
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)
@@ -73,7 +88,7 @@ async function restoreDerivedData(
   derivedDataDirectory: string,
   key: string,
   restoreKeys: string[]
-): Promise<boolean> {
+): Promise<string | undefined> {
   const begin = new Date()
   core.info(`[${util.getHHmmss(begin)}]: Restoring DerivedData...`)
   core.info(`cache key:\n  ${key}`)
@@ -89,14 +104,14 @@ async function restoreDerivedData(
   }
   const end = new Date()
   core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
-  return restored
+  return restoreKey
 }
 
 async function restoreSourcePackages(
   sourcePackagesDirectory: string,
   key: string,
   restoreKeys: string[]
-): Promise<boolean> {
+): Promise<string | undefined> {
   const begin = new Date()
   core.info(`[${util.getHHmmss(begin)}]: Restoring SourcePackages...`)
   core.info(`cache key:\n  ${key}`)
@@ -112,7 +127,7 @@ async function restoreSourcePackages(
   }
   const end = new Date()
   core.info(`[${util.getHHmmss(end)}]: ${util.elapsed(begin, end)}s`)
-  return restored
+  return restoreKey
 }
 
 async function restoreMtime(
