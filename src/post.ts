@@ -109,12 +109,13 @@ async function deleteUsedDerivedDataCache(
     core.info(`Cache key:\n  ${restoreKey}`)
     const octokit = github.getOctokit(token)
     try {
-      await octokit.request('DELETE /repos/{owner}/{repo}/actions/caches{?key,ref}', {
+      const result = await octokit.request('DELETE /repos/{owner}/{repo}/actions/caches{?key,ref}', {
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         key: restoreKey,
         ref: github.context.ref
       })
+      core.info(`DELETE cache API Result:\n${JSON.stringify(result, null, '  ')}`)
     } catch (error) {
       core.error('Error when deleting old DerivedData cache:')
       core.error('Please be sure actions:write permission is granted for your token.')
