@@ -249,6 +249,8 @@ Please see the official document of GitHub Actions Cache management for more det
         # only when this job has succeeded, the cache has hit from `restore-keys` and
         # the Cache belongs to same branch from this job.
         #
+        # actions: write permission is required for your token to use this feature.
+        #
         # Cache will be deleted by GitHub Actions API
         # https://docs.github.com/en/rest/actions/cache?apiVersion=2022-11-28#delete-github-actions-caches-for-a-repository-using-a-cache-key
         #
