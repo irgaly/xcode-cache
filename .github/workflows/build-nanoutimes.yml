@@ -20,7 +20,7 @@ jobs:
           node-gyp configure && node-gyp build
           mkdir -p "artifact/${{ steps.artifact-name.outputs.name }}"
           mv build/Release/nanoutimes.node "artifact/${{ steps.artifact-name.outputs.name }}"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.artifact-name.outputs.name }}
           path: artifact
