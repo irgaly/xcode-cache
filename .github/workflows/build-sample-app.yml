@@ -1,7 +1,7 @@
 name: Build Sample Xcode iOS Application for demonstration
 
 on:
-  push:
+  pull_request:
 
 permissions:
   actions: write
@@ -16,7 +16,7 @@ jobs:
           xcode-version: latest-stable
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.0'
+          ruby-version: "3.2.0"
       - uses: irgaly/xcode-cache@main
         with:
           key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
