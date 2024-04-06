@@ -1,17 +1,17 @@
-# v1.7.2 - 2024/4/6 JST
+# v1.7.2 - 2024/04/06 JST
 
 #### Maintenance
 
 * update node 20.12.1 [#58](https://github.com/irgaly/xcode-cache/pull/58)
   * Support GitHub Actions node20 runtime
 
-# v1.7.1 - 2023/12/1 JST
+# v1.7.1 - 2023/12/01 JST
 
 #### Fix
 
 * Fix deleting cache API's 404 error handling [#50](https://github.com/irgaly/xcode-cache/pull/50)
 
-# v1.7.0 - 2023/12/1 JST
+# v1.7.0 - 2023/12/01 JST
 
 #### Improve
 
