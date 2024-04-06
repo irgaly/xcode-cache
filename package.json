@@ -10,7 +10,7 @@
     "post": "ts-node src/post.ts"
   },
   "dependencies": {
-    "@actions/cache": "3.2.2",
+    "@actions/cache": "3.2.4",
     "@actions/core": "1.10.1",
     "@actions/exec": "1.1.1",
     "@actions/glob": "0.4.0",
