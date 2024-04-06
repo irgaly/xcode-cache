@@ -90,6 +90,10 @@ async function post() {
       core.setFailed(error.message)
     }
   }
+  // Workaround for node20 HTTPS + keepAlive + cache.saveCache() takes 2 mins bug
+  // https://github.com/actions/toolkit/issues/1643
+  // https://github.com/nodejs/node/issues/47228
+  process.exit(0)
 }
 
 async function deleteUsedDerivedDataCache(
