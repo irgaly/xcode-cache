@@ -52,6 +52,10 @@ inputs:
     description: 'enable verbose logging'
     required: false
     default: 'false'
+  cache-read-only:
+    description: 'When true, existing entries will be read from the cache but no entries will be written.'
+    required: false
+    default: 'false'
 runs:
   using: 'node20'
   main: 'dist/main/index.js'

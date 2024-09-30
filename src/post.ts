@@ -30,6 +30,12 @@ async function post() {
       core.info(`  ${key} = ${value}`)
     })
     core.info('')
+
+    if (input.cacheReadOnly) {
+      core.info('Cache is read-only: will not save state for use in subsequent builds.')
+      return
+    }
+
     const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
     const derivedDataDirectory = await input.getDerivedDataDirectory()
     const sourcePackagesDirectory = await input.getSourcePackagesDirectory()

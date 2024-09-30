@@ -270,6 +270,13 @@ Please see the official document of GitHub Actions Cache management for more det
         # optional
         # default: false
         verbose: false
+
+        # Cache read-only mode
+        # If true, the action will only read from the cache and not write to it
+        #
+        # optional
+        # default: false
+        cache-read-only: false
 ```
 
 # Outputs
