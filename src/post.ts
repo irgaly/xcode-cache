@@ -227,6 +227,7 @@ async function storeMtime(
     "**/*.xib",
     "**/*.storyboard",
     "**/*.strings",
+    "**/*.xcstrings",
     "**/*.plist",
     "**/*.intentdefinition",
     "**/*.json",
