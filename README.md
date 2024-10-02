@@ -140,6 +140,7 @@ this action will store these file's mtime attributes:
 * `**/*.xib`
 * `**/*.storyboard`
 * `**/*.strings`
+* `**/*.xcstrings`
 * `**/*.plist`
 * `**/*.intentdefinition`
 * `**/*.json`
