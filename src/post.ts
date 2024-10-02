@@ -30,66 +30,64 @@ async function post() {
       core.info(`  ${key} = ${value}`)
     })
     core.info('')
-
     if (input.cacheReadOnly) {
       core.info('Cache is read-only: will not save state for use in subsequent builds.')
-      return
-    }
-
-    const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
-    const derivedDataDirectory = await input.getDerivedDataDirectory()
-    const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
-    if (!existsSync(derivedDataDirectory)) {
-      core.warning(`DerivedData directory not found:\n  ${derivedDataDirectory}`)
-      core.warning('Skipped storing mtime')
     } else {
-      const derivedDataRestoreKey = core.getState('deriveddata-restorekey')
-      if (derivedDataRestoreKey == input.key) {
-        core.warning(`DerivedData cache has been restored with same key: ${input.key}`)
+      const tempDirectory = path.join(process.env['RUNNER_TEMP']!, 'irgaly-xcode-cache')
+      const derivedDataDirectory = await input.getDerivedDataDirectory()
+      const sourcePackagesDirectory = await input.getSourcePackagesDirectory()
+      if (!existsSync(derivedDataDirectory)) {
+        core.warning(`DerivedData directory not found:\n  ${derivedDataDirectory}`)
         core.warning('Skipped storing mtime')
       } else {
-        await storeMtime(
-          derivedDataDirectory,
-          sourcePackagesDirectory,
-          input.restoreMtimeTargets,
-          input.useDefaultMtimeTargets,
-          input.verbose
-        )
+        const derivedDataRestoreKey = core.getState('deriveddata-restorekey')
+        if (derivedDataRestoreKey == input.key) {
+          core.warning(`DerivedData cache has been restored with same key: ${input.key}`)
+          core.warning('Skipped storing mtime')
+        } else {
+          await storeMtime(
+            derivedDataDirectory,
+            sourcePackagesDirectory,
+            input.restoreMtimeTargets,
+            input.useDefaultMtimeTargets,
+            input.verbose
+          )
+        }
       }
-    }
-    core.info('')
-    if (sourcePackagesDirectory == null) {
-      core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`)
-    } else {
-      if (!existsSync(sourcePackagesDirectory)) {
-        core.warning(`SourcePackages directory not exists:\n  ${sourcePackagesDirectory}`)
-        core.warning('Skipped storing SourcePackages')
+      core.info('')
+      if (sourcePackagesDirectory == null) {
+        core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`)
       } else {
-        await storeSourcePackages(
-          sourcePackagesDirectory,
-          await input.getSwiftpmCacheKey()
-        )
+        if (!existsSync(sourcePackagesDirectory)) {
+          core.warning(`SourcePackages directory not exists:\n  ${sourcePackagesDirectory}`)
+          core.warning('Skipped storing SourcePackages')
+        } else {
+          await storeSourcePackages(
+            sourcePackagesDirectory,
+            await input.getSwiftpmCacheKey()
+          )
+        }
       }
-    }
-    core.info('')
-    if (input.deleteUsedDerivedDataCache) {
-      await deleteUsedDerivedDataCache(
-        input.key,
-        input.token
+      core.info('')
+      if (input.deleteUsedDerivedDataCache) {
+        await deleteUsedDerivedDataCache(
+          input.key,
+          input.token
+        )
+      } else {
+        core.info('Skipped deleting old DerivedData cache')
+      }
+      core.info('')
+      await storeDerivedData(
+        await input.getDerivedDataDirectory(),
+        sourcePackagesDirectory,
+        tempDirectory,
+        input.key
       )
-    } else {
-      core.info('Skipped deleting old DerivedData cache')
-    }
-    core.info('')
-    await storeDerivedData(
-      await input.getDerivedDataDirectory(),
-      sourcePackagesDirectory,
-      tempDirectory,
-      input.key
-    )
-    if (!debugLocal && existsSync(tempDirectory)) {
-      core.info(`Clean up: removing temporary directory: ${tempDirectory}`)
-      await fs.rm(tempDirectory, { recursive: true, force: true })
+      if (!debugLocal && existsSync(tempDirectory)) {
+        core.info(`Clean up: removing temporary directory: ${tempDirectory}`)
+        await fs.rm(tempDirectory, { recursive: true, force: true })
+      }
     }
   } catch (error) {
     if (error instanceof Error) {
