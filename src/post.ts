@@ -22,7 +22,7 @@ async function post() {
     }
     const runnerOs = process.env['RUNNER_OS']
     if (runnerOs != 'macOS') {
-      throw new Error(`setup-xcode supports only macOS, current host is ${runnerOs}`)
+      throw new Error(`xcode-cache supports only macOS, current host is ${runnerOs}`)
     }
     const input = getInput()
     core.info('Input parameters:')
