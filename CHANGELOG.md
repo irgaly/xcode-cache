@@ -1,3 +1,16 @@
+# v1.8.0 - 2024/10/02 JST
+
+#### Improve
+
+* add cache-read-only feature [#63](https://github.com/irgaly/xcode-cache/pull/63)
+    * refactor: cacheReadOnly condition [#68](https://github.com/irgaly/xcode-cache/pull/68)
+* Add *.xcstrings to default mtime targets  [#69](https://github.com/irgaly/xcode-cache/pull/69)
+
+#### Maintenance
+
+* CI: update dist on ubuntu-latest [#60](https://github.com/irgaly/xcode-cache/pull/60)
+* fix error message typo [#67](https://github.com/irgaly/xcode-cache/pull/67)
+
 # v1.7.2 - 2024/04/06 JST
 
 #### Maintenance
