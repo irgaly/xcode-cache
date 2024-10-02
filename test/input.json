@@ -9,5 +9,6 @@
   "INPUT_USE-DEFAULT-MTIME-TARGETS": "true",
   "INPUT_DELETE-USED-DERIVEDDATA-CACHE": "false",
   "INPUT_TOKEN": "dummy_github_token",
-  "INPUT_VERBOSE": "true"
+  "INPUT_VERBOSE": "true",
+  "INPUT_CACHE-READ-ONLY": "false"
 }
