@@ -86256,6 +86256,11 @@ const fs_1 = __nccwpck_require__(7147);
 const path = __importStar(__nccwpck_require__(1017));
 const input_1 = __nccwpck_require__(6747);
 const util = __importStar(__nccwpck_require__(2629));
+// Prevent upload chunk error, handle it as warning
+// > Error: Cache upload failed because file read failed with EBADF: bad file descriptor
+process.on('uncaughtException', e => {
+    core.info(`[warning] ${e.message}`);
+});
 post();
 async function post() {
     try {
