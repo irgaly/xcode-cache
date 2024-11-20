@@ -1,3 +1,10 @@
+# v1.8.1 - 2024/11/20 JST
+
+#### Maintenance
+
+* update `@actions/cache`, `@actions/core` [#72](https://github.com/irgaly/xcode-cache/pull/72)
+* handle uncaughtException in post job [#73](https://github.com/irgaly/xcode-cache/pull/73)
+
 # v1.8.0 - 2024/10/02 JST
 
 #### Improve
