@@ -11,6 +11,12 @@ import { getInput, debugLocalInput } from './input'
 import * as util from './util'
 import { MtimeJson } from './json'
 
+// Prevent upload chunk error, handle it as warning
+// > Error: Cache upload failed because file read failed with EBADF: bad file descriptor
+process.on('uncaughtException', e => {
+  core.info(`[warning] ${e.message}`);
+});
+
 post()
 
 async function post() {
