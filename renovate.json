@@ -20,7 +20,7 @@
     {
       "groupName": "@actions",
       "matchPackageNames": [
-        "@actions/{/,}**"
+        "@actions/*"
       ]
     }
   ]
