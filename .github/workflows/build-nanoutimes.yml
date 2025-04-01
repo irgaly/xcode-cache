@@ -11,7 +11,7 @@ jobs:
           repository: josepharhar/nanoutimes
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.12.1
+          node-version: 20.19.0
       - id: artifact-name
         run: |
           echo "name=$(node -p '`node-v${process.versions.modules}-darwin-${os.arch()}`')" >> "$GITHUB_OUTPUT"
