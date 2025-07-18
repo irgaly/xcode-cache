@@ -1,6 +1,6 @@
 # v1.9.1 - 2025/7/18 JST
 
-* update npm dependencies [#86](https://github.com/irgaly/xcode-cache/pull/86))
+* update npm dependencies [#86](https://github.com/irgaly/xcode-cache/pull/86)
 
 # v1.9.0 - 2025/4/20 JST
 
