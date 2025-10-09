@@ -206,7 +206,7 @@ Please see the official document of GitHub Actions Cache management for more det
 
         # SourcePackages directory path
         #
-        # optional, multiline
+        # optional
         # default: {DerivedDirectory path}/SourcePackages
         sourcepackages-directory: { your SourcePackages directory path }
 
