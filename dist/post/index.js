@@ -73618,7 +73618,7 @@ async function post() {
             }
             core.info('');
             if (sourcePackagesDirectory == null) {
-                core.info(`There are no SourcePackages directory in DerivedData, skip restoring SourcePackages`);
+                core.info(`There are no SourcePackages directory in DerivedData, skip storing SourcePackages`);
             }
             else {
                 if (!(0, fs_1.existsSync)(sourcePackagesDirectory)) {
