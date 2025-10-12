@@ -20,6 +20,6 @@
     "@types/node": "22.16.2",
     "@vercel/ncc": "0.38.0",
     "ts-node": "10.9.1",
-    "typescript": "5.8.3"
+    "typescript": "5.9.3"
   }
 }
