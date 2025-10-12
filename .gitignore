@@ -1,4 +1,7 @@
-.idea/caches
+.idea/*
+!.idea/codeStyles
+!.idea/dictionaries
+!.idea/externalDependencies.xml
 
 # Created by https://www.toptal.com/developers/gitignore/api/node,intellij,xcode
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,intellij,xcode
