@@ -1,3 +1,7 @@
+# v1.9.2 - 2025/10/12 JST
+
+* update Node 24 runtime [#100](https://github.com/irgaly/xcode-cache/pull/100)
+
 # v1.9.1 - 2025/7/18 JST
 
 * update npm dependencies [#86](https://github.com/irgaly/xcode-cache/pull/86)
