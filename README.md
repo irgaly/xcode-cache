@@ -14,7 +14,7 @@ A GitHub Action to store Xcode's Build Cache for incremental build on CI.
 Use this action in GitHub Actions workflow.
 
 ```yaml
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       ...
     - uses: irgaly/xcode-cache@v1
       with:
