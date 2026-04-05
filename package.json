@@ -10,11 +10,11 @@
     "post": "ts-node src/post.ts"
   },
   "dependencies": {
-    "@actions/cache": "5.0.2",
-    "@actions/core": "2.0.2",
-    "@actions/exec": "2.0.0",
+    "@actions/cache": "6.0.0",
+    "@actions/core": "3.0.0",
+    "@actions/exec": "3.0.0",
     "@actions/glob": "0.5.0",
-    "@actions/github": "7.0.0"
+    "@actions/github": "9.0.0"
   },
   "devDependencies": {
     "@types/node": "24.12.2",
