@@ -16,7 +16,7 @@ jobs:
           xcode-version: latest-stable
       - uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1.320.0
         with:
-          ruby-version: '3.4.7'
+          ruby-version: '4.0.6'
       - uses: irgaly/xcode-cache@main
         with:
           key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
