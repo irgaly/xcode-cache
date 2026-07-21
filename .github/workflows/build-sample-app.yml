@@ -14,7 +14,7 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: latest-stable
-      - uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
+      - uses: ruby/setup-ruby@a30dfa457ad68707b8b910ac3a244714b61c0626 # v1.320.0
         with:
           ruby-version: '3.4.7'
       - uses: irgaly/xcode-cache@main
