@@ -17,7 +17,7 @@
     "@actions/github": "9.1.1"
   },
   "devDependencies": {
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.1",
     "@vercel/ncc": "0.44.1",
     "ts-node": "10.9.1",
     "typescript": "6.0.2"
